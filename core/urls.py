@@ -22,12 +22,11 @@ from django.urls import include
 from core.views import log_in, ProfileViewSet, LogoutView
 
 router = DefaultRouter(trailing_slash=False)
-router.register(r'sign_up', ProfileViewSet)
+router.register(r'signup', ProfileViewSet)
 urlpatterns = router.urls
 
 urlpatterns = [
-    # path('auth/', rest_framework.authtoken.views.obtain_auth_token, name='auth'),
-    path('log_in/', log_in.as_view(), name='log_in'),
+    path('login/', log_in.as_view(), name='log_in'),
     path('logout/', LogoutView.as_view(), name='logout'),
 ]
 urlpatterns += router.urls

@@ -1,30 +1,11 @@
-from django.contrib.auth.models import AbstractUser
-from django.db import models
-from django.utils.translation import ugettext_lazy as _
-from .customUserManager import CustomUserManager
 # Create your models here.
-ENTITY_STATUS_CHOICES = (
-    ('client', 'Client'),
-    ('supplier', 'Supplier'),
-    ('other', 'Other'),
-)
-
-
-class CustomUser(AbstractUser):
-    username = None
-    email = models.EmailField(_('email address'), unique=True)
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
-
-    objects = CustomUserManager()
-
-    def __str__(self):
-        return self.email
+from django.db import models
+from django.contrib.auth.models import User
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    company_name = models.CharField(max_length=256, default="")
     trade_role = models.CharField(max_length=256, default="")
     free_trail = models.CharField(max_length=256, default="")
     terms_and_condition = models.TextField(default="")

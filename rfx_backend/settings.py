@@ -25,7 +25,7 @@ SECRET_KEY = '0e3=b3)crcjgk@!ochlwzud%hs*my_asp1#_4o%j!eb(c&8%x8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -52,7 +52,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-AUTH_USER_MODEL = 'core.CustomUser'
 
 ROOT_URLCONF = 'rfx_backend.urls'
 
