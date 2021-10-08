@@ -17,16 +17,17 @@ import rest_framework
 from django.contrib import admin
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-
-from core.views import CustomAuthToken, ProfileViewSet, LogoutView
+from core import views
+from django.urls import include
+from core.views import log_in, ProfileViewSet, LogoutView
 
 router = DefaultRouter(trailing_slash=False)
-router.register(r'profile', ProfileViewSet)
+router.register(r'sign_up', ProfileViewSet)
 urlpatterns = router.urls
 
 urlpatterns = [
     # path('auth/', rest_framework.authtoken.views.obtain_auth_token, name='auth'),
-    path('auth/', CustomAuthToken.as_view(), name='auth'),
+    path('log_in/', log_in.as_view(), name='log_in'),
     path('logout/', LogoutView.as_view(), name='logout'),
 ]
 urlpatterns += router.urls

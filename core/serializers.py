@@ -1,7 +1,6 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
 from core.models import UserProfile
-
+from .models import CustomUser
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,7 +17,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = "__all__"
         extra_kwargs = {'password': {'write_only': True}}
 
