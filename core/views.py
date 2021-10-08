@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.models import UserProfile
-from core.serializers import ProfileSerializer
+from core.serializers import ProfileSerializer, UserSerializer
 
 
 class CustomAuthToken(ObtainAuthToken):
@@ -24,14 +24,13 @@ class CustomAuthToken(ObtainAuthToken):
                                            context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['username']
-        user = User.objects.get(username=user)
-        token, created = Token.objects.get_or_create(user=user)
+        token, created = Token.objects.get_or_create(user__username=user)
         return Response({
             'is_success': True,
             'token': token.key,
-            'user_id': user.id,
-            'name': user.username,
-            'email': user.email},
+            'user_id': token.user.id,
+            'username': token.user.username,
+            'email': token.user.email},
             status=status.HTTP_201_CREATED)
 
 
@@ -47,8 +46,28 @@ class LogoutView(APIView):
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
-
     queryset = UserProfile.objects.all()
     serializer_class = ProfileSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+
+    # permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        user = UserSerializer(data=request.data)
+        if user.is_valid():
+            user = user.save()
+        else:
+            return Response({"success":False, "error": user._errors})
+        data = request.data
+        data["user"] = user.id
+        serializer = self.get_serializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
+                'token': token.key,
+                'user_id': user.id,
+                'name': user.username,
+                'email': user.email},
+                status=status.HTTP_201_CREATED)
+        return Response({"success":False, "error": serializer._errors})
