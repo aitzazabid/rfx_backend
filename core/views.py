@@ -16,7 +16,6 @@ class log_in(ObtainAuthToken):
         user = User.objects.filter(username=request.data["email"]).first()
         if user:
             if user.check_password(request.data["password"]):
-                import pdb;pdb.set_trace()
                 token, created = Token.objects.get_or_create(user=user)
                 response = ProfileSerializer(user.profile).data
                 response["first_name"] = user.first_name
