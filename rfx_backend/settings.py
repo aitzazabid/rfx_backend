@@ -153,3 +153,10 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = ["*"]
 CSRF_TRUSTED_ORIGINS = ["*"]
+
+MIDDLEWARE_CLASSES = [
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "corsheaders.middleware.CorsPostCsrfMiddleware",
+
+]
