@@ -32,12 +32,12 @@ class log_in(ObtainAuthToken):
 
 class LogoutView(APIView):
 
-    def put(self, request):
+    def POST(self, request):
         # simply delete the token to force a login
         dt = request.data
         token = dt.get('token')
         t = Token.objects.filter(key=token).delete()
-        return Response({'is_success': True},
+        return Response({'success': True, "message":"Logout success full"},
                         status=status.HTTP_200_OK)
 
 
