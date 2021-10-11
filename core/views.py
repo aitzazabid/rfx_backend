@@ -16,7 +16,8 @@ class log_in(ObtainAuthToken):
         user = User.objects.filter(username=request.data["email"]).first()
         if user:
             if user.check_password(request.data["password"]):
-                token, created = Token.objects.get_or_create(user__username=user)
+                import pdb;pdb.set_trace()
+                token, created = Token.objects.get_or_create(user=user)
                 response = ProfileSerializer(user.profile).data
                 response["first_name"] = user.first_name
                 response["last_name"] = user.last_name
@@ -32,7 +33,7 @@ class log_in(ObtainAuthToken):
 
 class LogoutView(APIView):
 
-    def POST(self, request):
+    def put(self, request):
         # simply delete the token to force a login
         dt = request.data
         token = dt.get('token')
