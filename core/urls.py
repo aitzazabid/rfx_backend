@@ -19,10 +19,11 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from core import views
 from django.urls import include
-from core.views import log_in, ProfileViewSet, LogoutView
+from core.views import log_in, ProfileViewSet, LogoutView, ProfileSearchListView
 
 router = DefaultRouter(trailing_slash=False)
 router.register(r'signup', ProfileViewSet)
+router.register(r'search', ProfileSearchListView)
 urlpatterns = router.urls
 
 urlpatterns = [

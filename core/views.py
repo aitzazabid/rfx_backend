@@ -1,13 +1,14 @@
 # Create your views here.
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, generics
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from core.models import UserProfile
-from core.serializers import ProfileSerializer, UserSerializer
+from core.serializers import ProfileSerializer, UserSerializer, SearchProfileSerializer
 from django.contrib.auth.models import User
+from rest_framework import filters
 
 
 class log_in(ObtainAuthToken):
@@ -75,6 +76,14 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 return Response(response)
             return Response({"success":False, "error": profile._errors})
         return Response({"success":False, "error": user._errors})
+
+
+class ProfileSearchListView(viewsets.ModelViewSet):
+    queryset = UserProfile.objects.all()
+    serializer_class = SearchProfileSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['company_name']
+
 
 
 
