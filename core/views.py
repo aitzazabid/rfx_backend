@@ -1,4 +1,6 @@
 # Create your views here.
+import pdb
+
 from rest_framework import viewsets, status, generics
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -46,7 +48,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = ProfileSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication]
-
     def create(self, request, *args, **kwargs):
         if "email" not in request.data:
             return Response({"success":False, "error": {
@@ -76,6 +77,16 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 return Response(response)
             return Response({"success":False, "error": profile._errors})
         return Response({"success":False, "error": user._errors})
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data)
+        if serializer.is_valid():
+            self.perform_update(serializer)
+
+        return Response(serializer.data)
+
+
 
 
 class ProfileSearchListView(viewsets.ModelViewSet):
