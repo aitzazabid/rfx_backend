@@ -50,7 +50,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
 
     def create(self, request, *args, **kwargs):
-        request.data._mutable = True
+        # request.data._mutable = True
         if "email" not in request.data:
             return Response({"success":False, "error": {
                     "email": [
