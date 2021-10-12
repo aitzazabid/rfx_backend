@@ -163,3 +163,8 @@ MIDDLEWARE_CLASSES = [
     "corsheaders.middleware.CorsPostCsrfMiddleware",
 
 ]
+
+#new setting for adding media file
+import os
+MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
+
