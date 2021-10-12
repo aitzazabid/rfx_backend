@@ -49,6 +49,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     def create(self, request, *args, **kwargs):
+        request.data._mutable = True
         if "email" not in request.data:
             return Response({"success":False, "error": {
                     "email": [
