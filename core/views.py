@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from rest_framework import filters
 
 
-class log_in(ObtainAuthToken):
+class Login(ObtainAuthToken):
 
     def post(self, request, *args, **kwargs):
         user = User.objects.filter(username=request.data["email"]).first()
@@ -48,6 +48,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = ProfileSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication]
+
     def create(self, request, *args, **kwargs):
         request.data._mutable = True
         if "email" not in request.data:
@@ -76,8 +77,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 token, created = Token.objects.get_or_create(user=user)
                 response["token"] = token.key
                 return Response(response)
-            return Response({"success":False, "error": profile._errors})
-        return Response({"success":False, "error": user._errors})
+            return Response({"success": False, "error": profile._errors})
+        return Response({"success": False, "error": user._errors})
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -86,8 +87,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
             self.perform_update(serializer)
 
         return Response(serializer.data)
-
-
 
 
 class ProfileSearchListView(viewsets.ModelViewSet):

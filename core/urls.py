@@ -19,7 +19,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from core import views
 from django.urls import include
-from core.views import log_in, ProfileViewSet, LogoutView, ProfileSearchListView
+from core.views import Login, ProfileViewSet, LogoutView, ProfileSearchListView
 
 router = DefaultRouter(trailing_slash=False)
 router.register(r'signup', ProfileViewSet)
@@ -27,7 +27,7 @@ router.register(r'search', ProfileSearchListView)
 urlpatterns = router.urls
 
 urlpatterns = [
-    path('login/', log_in.as_view(), name='log_in'),
+    path('login/', Login.as_view(), name='log_in'),
     path('logout/', LogoutView.as_view(), name='logout'),
 ]
 urlpatterns += router.urls
