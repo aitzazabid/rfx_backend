@@ -28,3 +28,4 @@ class UserProfile(models.Model):
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
 
+
