@@ -16,7 +16,6 @@ from rest_framework import filters
 class Login(ObtainAuthToken):
 
     def post(self, request, *args, **kwargs):
-        import pdb; pdb.set_trace()
         user = User.objects.filter(username=request.data["email"]).first()
         if user:
             if user.check_password(request.data["password"]):
@@ -59,7 +58,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     ]
                 }})
         user_data = request.data
-        #request.data._mutable = True
+        request.data._mutable = True
         user_data["username"] = request.data["email"]
         user = UserSerializer(data=user_data)
         if user.is_valid():
