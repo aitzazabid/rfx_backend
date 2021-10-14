@@ -28,6 +28,10 @@ urlpatterns = router.urls
 
 urlpatterns = [
     path('login/', Login.as_view(), name='log_in'),
+    path("profile-update/<str:pk>/",views.ProfileViewSet.as_view({
+            "put": "update",
+        }
+    ),name="profile_update",),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('update-profile/<str:pk>/', views.ProfileViewSet.as_view({
         "put": "update"
