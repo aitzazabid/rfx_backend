@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from core import views
-from django.urls import include
+from django.urls import path, include
 from core.views import Login, ProfileViewSet, LogoutView, ProfileSearchListView
 
 router = DefaultRouter(trailing_slash=False)
@@ -33,5 +33,7 @@ urlpatterns = [
         }
     ),name="profile_update",),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('accounts/', include('allauth.urls')),
+    path('microsoft/', include('microsoft_auth.urls', namespace='microsoft')),
 ]
 urlpatterns += router.urls
