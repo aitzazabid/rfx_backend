@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from core import views
-from django.urls import include
+from django.urls import path, include
 from core.views import Login, ProfileViewSet, LogoutView, ProfileSearchListView
 
 router = DefaultRouter(trailing_slash=False)
@@ -36,5 +36,7 @@ urlpatterns = [
     path('update-profile/<str:pk>/', views.ProfileViewSet.as_view({
         "put": "update"
     }), name="update_profile"),
+    path('accounts/', include('allauth.urls')),
+    path('microsoft/', include('microsoft_auth.urls', namespace='microsoft')),
 ]
 urlpatterns += router.urls
