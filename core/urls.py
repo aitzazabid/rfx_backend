@@ -40,5 +40,8 @@ urlpatterns = [
     path('microsoft/', include('microsoft_auth.urls', namespace='microsoft')),
     path('social-auth/', include('social_django.urls', namespace="social")),
     path('reset-password/', ResetPassword.as_view(), name='reset_password'),
+    path('update-profile/<str:pk>/', views.ProfileViewSet.as_view({
+        "put": "update"
+    }), name="update_profile"),
 ]
 urlpatterns += router.urls
