@@ -38,5 +38,6 @@ urlpatterns = [
     }), name="update_profile"),
     path('accounts/', include('allauth.urls')),
     path('microsoft/', include('microsoft_auth.urls', namespace='microsoft')),
+    path('social-auth/', include('social_django.urls', namespace="social")),
 ]
 urlpatterns += router.urls
