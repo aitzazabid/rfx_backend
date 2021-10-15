@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django.contrib.sites',
     'microsoft_auth',
+    'social_django',
     'corsheaders',
     'core',
     'django_filters',
@@ -87,8 +88,28 @@ AUTHENTICATION_BACKENDS = [
     'microsoft_auth.backends.MicrosoftAuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend'
+    'social_core.backends.facebook.FacebookOAuth2',
 ]
 
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+LOGOUT_REDIRECT_URL = 'login'
+
+SOCIAL_AUTH_FACEBOOK_KEY = ''          # App ID
+SOCIAL_AUTH_FACEBOOK_SECRET = ''       # App Secret
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email', 'user_link']
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+  'fields': 'id, name, email, picture.type(large), link'
+}
+SOCIAL_AUTH_FACEBOOK_EXTRA_DATA = [
+    ('name', 'name'),
+    ('email', 'email'),
+    ('picture', 'picture'),
+    ('link', 'profile_url'),
+]
+
+MICROSOFT_AUTH_CLIENT_ID = 123
+MICROSOFT_AUTH_CLIENT_SECRET = 123
 MICROSOFT_AUTH_LOGIN_TYPE = 'ma'
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -104,7 +125,6 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 WSGI_APPLICATION = 'rfx_backend.wsgi.application'
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
