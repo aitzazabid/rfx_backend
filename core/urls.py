@@ -19,7 +19,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from core import views
 from django.urls import path, include
-from core.views import Login, ProfileViewSet, LogoutView, ProfileSearchListView
+from core.views import Login, ProfileViewSet, LogoutView, ProfileSearchListView, ResetPassword
 
 router = DefaultRouter(trailing_slash=False)
 router.register(r'signup', ProfileViewSet)
@@ -36,5 +36,6 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('microsoft/', include('microsoft_auth.urls', namespace='microsoft')),
     path('social-auth/', include('social_django.urls', namespace="social")),
+    path('reset-password/', ResetPassword.as_view(), name='reset_password'),
 ]
 urlpatterns += router.urls
