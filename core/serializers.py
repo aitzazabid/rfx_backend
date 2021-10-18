@@ -37,3 +37,9 @@ class SearchProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = "__all__"
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    model = User
+    old_pwd = serializers.CharField(required=True)
+    new_pwd = serializers.CharField(required=True)

@@ -8,9 +8,10 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from core.models import UserProfile
-from core.serializers import ProfileSerializer, UserSerializer, SearchProfileSerializer
+from core.serializers import ProfileSerializer, UserSerializer, SearchProfileSerializer, ResetPasswordSerializer
 from django.contrib.auth.models import User
 from rest_framework import filters
+from rest_framework.permissions import IsAuthenticated
 
 
 class Login(ObtainAuthToken):
@@ -58,7 +59,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     ]
                 }})
         user_data = request.data
-        request.data._mutable = True
+        #request.data._mutable = True
         user_data["username"] = request.data["email"]
         user = UserSerializer(data=user_data)
         if user.is_valid():
@@ -99,5 +100,32 @@ class ProfileSearchListView(viewsets.ModelViewSet):
     search_fields = ['company_name']
 
 
+class ResetPassword(generics.UpdateAPIView):
+    serializer_class = ResetPasswordSerializer
+    model = User
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, queryset=None):
+        obj = self.request.user
+        return obj
+
+    def update(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            if not self.object.check_password(serializer.data.get("old_pwd")):
+                return Response({"old_pwd": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+            self.object.set_password(serializer.data.get("new_pwd"))
+            self.object.save()
+            response = {
+                'status': 'success',
+                'code': status.HTTP_200_OK,
+                'message': 'Password updated successfully',
+                'data': []
+            }
+            return Response(response)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
