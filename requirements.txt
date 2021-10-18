@@ -5,7 +5,7 @@ django-filter==21.1
 Pillow==8.3.2
 
 #for Google auth
-pip install django-allauth
+django-allauth==0.45.0
 
 #for Microsoft auth
-pip install django-microsoft-auth
+django-microsoft-auth==2.4.0
