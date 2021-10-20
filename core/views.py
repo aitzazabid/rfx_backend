@@ -7,11 +7,16 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from core.models import UserProfile
-from core.serializers import ProfileSerializer, UserSerializer, SearchProfileSerializer, ResetPasswordSerializer
+from core.models import UserProfile, Category, Subcategory
+from core.serializers import ProfileSerializer,\
+    UserSerializer, SearchProfileSerializer,\
+    ResetPasswordSerializer, CategorySerializer,\
+    SubCategorySerializer, CategorySubcategorySerializer
 from django.contrib.auth.models import User
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
+
 
 
 class Login(ObtainAuthToken):
@@ -127,5 +132,24 @@ class ResetPassword(generics.UpdateAPIView):
             return Response(response)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+
+    @action(detail=False, methods=['get'])
+    def all(self, request):
+        response = CategorySubcategorySerializer(self.queryset, many=True).data
+        return Response(response)
+
+
+class SubCategoryViewSet(viewsets.ModelViewSet):
+    queryset = Subcategory.objects.all()
+    serializer_class = SubCategorySerializer
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+
+
 
 

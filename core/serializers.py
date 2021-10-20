@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from core.models import UserProfile
+from core.models import UserProfile, Category, Subcategory
 from django.contrib.auth.models import User
 
 
@@ -43,3 +43,23 @@ class ResetPasswordSerializer(serializers.Serializer):
     model = User
     old_pwd = serializers.CharField(required=True)
     new_pwd = serializers.CharField(required=True)
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = "__all__"
+
+
+class SubCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subcategory
+        fields = "__all__"
+
+
+class CategorySubcategorySerializer(serializers.ModelSerializer):
+    sub_categories = CategorySerializer(source='category', many=True, read_only=True)
+
+    class Meta:
+        model = Category
+        fields = "__all__"

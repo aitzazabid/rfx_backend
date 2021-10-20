@@ -28,4 +28,12 @@ class UserProfile(models.Model):
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=256)
+    description = models.TextField()
 
+
+class Subcategory(models.Model):
+    category = models.ForeignKey(Category, related_name="category", on_delete=models.CASCADE)
+    name = models.CharField(max_length=256)
+    description = models.TextField()
