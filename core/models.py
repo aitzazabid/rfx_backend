@@ -29,6 +29,8 @@ class UserProfile(models.Model):
     year_of_establishment = models.IntegerField(default=0)
     user_mobile_number = models.IntegerField(default=0)
     company_brand = models.CharField(max_length=256, default="")
+    google_id = models.TextField(null=True, blank=True)
+    image_url = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 

@@ -66,6 +66,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         user_data = request.data
         #request.data._mutable = True
         user_data["username"] = request.data["email"]
+
         user = UserSerializer(data=user_data)
         if user.is_valid():
             user = user.save()
@@ -157,6 +158,56 @@ class ChildSubCategoryViewSet(viewsets.ModelViewSet):
     serializer_class = ChildSubCategorySerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication]
 
+
+class GoogleSignViewSet(viewsets.ModelViewSet):
+    queryset = UserProfile.objects.all()
+    serializer_class = ProfileSerializer
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+
+    def create(self, request, *args, **kwargs):
+        if "google_id" not in request.data:
+            return Response({"success": False, "error": {
+                "google_id": [
+                    "This field is required"
+                ]
+            }})
+        email = request.data["google_id"]
+        password = str(email)+"rfx_password"
+        user_data = request.data
+        user_data["username"] = request.data["email"]
+        user_data["password"] = password
+        user = UserProfile.objects.filter(google_id=request.data["google_id"]).first()
+        if user:
+            user = user.user
+            token, created = Token.objects.get_or_create(user=user)
+            response = ProfileSerializer(user.profile).data
+            response["first_name"] = user.first_name
+            response["last_name"] = user.last_name
+            response["email"] = user.email
+            response["token"] = token.key
+            return Response(response)
+        else:
+            user = UserSerializer(data=user_data)
+            if user.is_valid():
+                user = user.save()
+                user.set_password(password)
+                user.save()
+
+                data = request.data
+                data["user"] = user.id
+                profile = self.get_serializer(data=data)
+                if profile.is_valid():
+                    profile.save()
+                    response = profile.data
+                    response["first_name"] = user.first_name
+                    response["last_name"] = user.last_name
+                    response["email"] = user.email
+                    response["user"] = user.first_name
+                    token, created = Token.objects.get_or_create(user=user)
+                    response["token"] = token.key
+                    return Response(response)
+                return Response({"success": False, "error": profile._errors})
+            return Response({"success": False, "error": user._errors})
 
 
 

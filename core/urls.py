@@ -21,10 +21,11 @@ from core import views
 from django.urls import path, include
 from core.views import Login, ProfileViewSet,\
     LogoutView, ProfileSearchListView, ResetPassword,\
-    CategoryViewSet, SubCategoryViewSet, ChildSubCategoryViewSet
+    CategoryViewSet, SubCategoryViewSet, ChildSubCategoryViewSet, GoogleSignViewSet
 
 router = DefaultRouter(trailing_slash=False)
 router.register(r'signup', ProfileViewSet)
+router.register(r'google_login', GoogleSignViewSet)
 router.register(r'search', ProfileSearchListView)
 router.register(r'category', CategoryViewSet)
 router.register(r'subcategory', SubCategoryViewSet)
