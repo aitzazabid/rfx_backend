@@ -37,3 +37,9 @@ class Subcategory(models.Model):
     category = models.ForeignKey(Category, related_name="category", on_delete=models.CASCADE)
     name = models.CharField(max_length=256)
     description = models.TextField()
+
+
+class ChildSubcategory(models.Model):
+    category = models.ForeignKey(Subcategory, related_name="child_category", on_delete=models.CASCADE)
+    name = models.CharField(max_length=256)
+    description = models.TextField()

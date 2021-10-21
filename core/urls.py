@@ -21,13 +21,14 @@ from core import views
 from django.urls import path, include
 from core.views import Login, ProfileViewSet,\
     LogoutView, ProfileSearchListView, ResetPassword,\
-    CategoryViewSet, SubCategoryViewSet
+    CategoryViewSet, SubCategoryViewSet, ChildSubCategoryViewSet
 
 router = DefaultRouter(trailing_slash=False)
 router.register(r'signup', ProfileViewSet)
 router.register(r'search', ProfileSearchListView)
 router.register(r'category', CategoryViewSet)
 router.register(r'subcategory', SubCategoryViewSet)
+router.register(r'child_subcategory', ChildSubCategoryViewSet)
 urlpatterns = router.urls
 
 urlpatterns = [

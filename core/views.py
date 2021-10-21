@@ -7,11 +7,11 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from core.models import UserProfile, Category, Subcategory
+from core.models import UserProfile, Category, Subcategory, ChildSubcategory
 from core.serializers import ProfileSerializer,\
     UserSerializer, SearchProfileSerializer,\
     ResetPasswordSerializer, CategorySerializer,\
-    SubCategorySerializer, CategorySubcategorySerializer
+    SubCategorySerializer, CategorySubcategorySerializer, ChildSubCategorySerializer
 from django.contrib.auth.models import User
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
@@ -149,6 +149,12 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class SubCategoryViewSet(viewsets.ModelViewSet):
     queryset = Subcategory.objects.all()
     serializer_class = SubCategorySerializer
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+
+
+class ChildSubCategoryViewSet(viewsets.ModelViewSet):
+    queryset = ChildSubcategory.objects.all()
+    serializer_class = ChildSubCategorySerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication]
 
 
