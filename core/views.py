@@ -141,7 +141,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def all(self, request):
-        response = CategorySubcategorySerializer(self.queryset, many=True).data
+        query_set = Category.objects.all()
+        response = CategorySubcategorySerializer(query_set, many=True).data
         return Response(response)
 
 
