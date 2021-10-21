@@ -24,6 +24,11 @@ class UserProfile(models.Model):
     sales_dept_email = models.CharField(max_length=256, default="")
     sales_dept_contact = models.CharField(max_length=256, default="")
     license_no = models.CharField(max_length=256, default="")
+    company_size = models.IntegerField(default=0)
+    company_type = models.CharField(max_length=256, default="")
+    year_of_establishment = models.IntegerField(default=0)
+    user_mobile_number = models.IntegerField(default=0)
+    company_brand = models.CharField(max_length=256, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
