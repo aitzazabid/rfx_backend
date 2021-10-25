@@ -2,42 +2,56 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-def productFile(instance, filename):
-    return '/'.join( ['products', str(instance.id), filename] )
+COMPANY_SIZE = (
+    ('large', 'LARGE'),
+    ('medium', 'MEDIUM'),
+    ('small', 'SMALL'),
+)
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    image = models.ImageField(upload_to=productFile,max_length=254, blank=True, null=True)
-    company_email = models.CharField(max_length=256, default="")
-    company_name = models.CharField(max_length=256, default="")
-    trade_role = models.CharField(max_length=256, default="")
-    free_trail = models.CharField(max_length=256, default="")
-    terms_and_condition = models.TextField(default="")
-    website = models.TextField(default="")
-    annual_revenue = models.FloatField(default=0.0)
-    total_employees = models.IntegerField(default=0)
-    location = models.CharField(max_length=256, default="")
-    hq_address = models.CharField(max_length=256, default="")
-    social_link1 = models.TextField(default="")
-    social_link2 = models.TextField(default="")
-    company_contact = models.CharField(max_length=256, default="")
-    sales_dept_email = models.CharField(max_length=256, default="")
-    sales_dept_contact = models.CharField(max_length=256, default="")
-    license_no = models.CharField(max_length=256, default="")
-    company_size = models.IntegerField(default=0)
-    company_type = models.CharField(max_length=256, default="")
-    year_of_establishment = models.IntegerField(default=0)
-    user_mobile_number = models.IntegerField(default=0)
-    company_brand = models.CharField(max_length=256, default="")
-    google_id = models.TextField(null=True, blank=True)
-    image_url = models.TextField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+
+def productFile(instance, filename):
+    return '/'.join(['products', str(instance.id), filename])
 
 
 class Category(models.Model):
     name = models.CharField(max_length=256)
     description = models.TextField()
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    image = models.ImageField(upload_to=productFile, max_length=254, blank=True, null=True)
+    company_email = models.CharField(max_length=256, default="", blank=True, null=True)
+    company_name = models.CharField(max_length=256, default="")
+    trade_role = models.CharField(max_length=256, default="")
+    free_trail = models.CharField(max_length=256, default="")
+    terms_and_condition = models.TextField(default="")
+    website = models.TextField(default="", blank=True, null=True)
+    annual_revenue = models.FloatField(default=0.0)
+    total_employees = models.IntegerField(default=0)
+    location = models.CharField(max_length=256, default="")
+    hq_address = models.CharField(max_length=256, default="")
+    social_link1 = models.TextField(default="", blank=True, null=True)
+    social_link2 = models.TextField(default="", blank=True, null=True)
+    company_contact = models.CharField(max_length=256, default="", blank=True, null=True)
+    sales_dept_email = models.CharField(max_length=256, default="", blank=True, null=True)
+    sales_dept_contact = models.CharField(max_length=256, default="", blank=True, null=True)
+    license_no = models.CharField(max_length=256, default="")
+    company_size = models.CharField(max_length=256, choices=COMPANY_SIZE, default=0, blank=True, null=True)
+    company_type = models.CharField(max_length=256, default="")
+    year_of_establishment = models.CharField(max_length=256, default=0)
+    user_mobile_number = models.IntegerField(default=0)
+    company_brand = models.CharField(max_length=256, default="", blank=True, null=True)
+    google_id = models.TextField(null=True, blank=True)
+    image_url = models.TextField(null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, null=True, blank=True)
+
+    email_verification_key = models.TextField(null=True, blank=True)
+    verified = models.BooleanField(default=False)
+    expires_in = models.DateTimeField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
 
 class Subcategory(models.Model):

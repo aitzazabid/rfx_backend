@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -69,7 +69,7 @@ ROOT_URLCONF = 'rfx_backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+         'DIRS': [os.path.join(BASE_DIR,'Templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -96,11 +96,11 @@ LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 LOGOUT_REDIRECT_URL = 'login'
 
-SOCIAL_AUTH_FACEBOOK_KEY = ''          # App ID
-SOCIAL_AUTH_FACEBOOK_SECRET = ''       # App Secret
+SOCIAL_AUTH_FACEBOOK_KEY = ''  # App ID
+SOCIAL_AUTH_FACEBOOK_SECRET = ''  # App Secret
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email', 'user_link']
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-  'fields': 'id, name, email, picture.type(large), link'
+    'fields': 'id, name, email, picture.type(large), link'
 }
 SOCIAL_AUTH_FACEBOOK_EXTRA_DATA = [
     ('name', 'name'),
@@ -222,8 +222,18 @@ SITE_ID = 2
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-
-#new setting for adding media file
+# new setting for adding media file
 import os
-MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+EMAIL_BACKEND = 'django_amazon_ses.EmailBackend'
+
+AWS_SES_ACCESS_KEY_ID = 'AKIA2QOWL7J5DG7PBHEM'
+AWS_SES_SECRET_ACCESS_KEY = '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'
+AWS_SES_REGION = 'us-west-2'
+
+
+DEFAULT_FROM_EMAIL = 'RFX ME <info@rfxme.com>'
+
 

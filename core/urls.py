@@ -21,7 +21,9 @@ from core import views
 from django.urls import path, include
 from core.views import Login, ProfileViewSet,\
     LogoutView, ProfileSearchListView, ResetPassword,\
-    CategoryViewSet, SubCategoryViewSet, ChildSubCategoryViewSet, GoogleSignViewSet
+    CategoryViewSet, SubCategoryViewSet, ChildSubCategoryViewSet, GoogleSignViewSet, VerifyEmail, ForgotPassword
+
+from django.contrib.auth import views as auth_views
 
 router = DefaultRouter(trailing_slash=False)
 router.register(r'signup', ProfileViewSet)
@@ -49,5 +51,9 @@ urlpatterns = [
     path('update-profile/<str:pk>/', views.ProfileViewSet.as_view({
         "put": "update"
     }), name="update_profile"),
+    path('verify-email/', VerifyEmail.as_view({"get": "get_user_data"}), name='verify_email'),
+    path('forgot-password/', views.ForgotPassword.as_view({
+        "post": "get_email"
+    }), name="forgot_password"),
 ]
 urlpatterns += router.urls
