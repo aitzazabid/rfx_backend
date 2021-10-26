@@ -21,6 +21,8 @@ from django.utils import timezone
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from rfx_backend.settings import DEFAULT_FROM_EMAIL
+from rest_fuzzysearch import search, sort
+from core.utils import send_verification_email
 
 
 class Login(ObtainAuthToken):
@@ -81,6 +83,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
             data["user"] = user.id
             data["email_verification_key"] = value
             data["expires_in"] = timezone.now() + timedelta(days=3)
+            data["verified"] = True
+            # send_verification_email(user_data["email"], value, user_data["first_name"])
             profile = self.get_serializer(data=data)
             if profile.is_valid():
                 profile.save()
@@ -144,7 +148,6 @@ class UpdateProfileViewSet(viewsets.ModelViewSet):
             return Response({"success": False, "error": serializer._errors})
 
         return Response(serializer.data)
-
 
 
 class ProfileSearchListView(viewsets.ModelViewSet):
@@ -281,23 +284,47 @@ class VerifyEmail(viewsets.ModelViewSet):
 class ForgotPassword(viewsets.ModelViewSet):
 
     def get_email(self, request):
-        import pdb;
-        pdb.set_trace()
-        user_data = request.data
-        email = user_data["email"]
-        token = request.GET['token']
-        ctx = {
-            'link': 'http://18.118.115.142/forgot-password?token=' + token,
-            'email': email
-        }
+        import pdb; pdb.set_trace()
+        if request.data.get("email", None):
+            user_data = request.data
+            email = user_data["email"]
+            value = randint(100000, 999999)
+            ctx = {
+                'link': 'http://18.118.115.142/forgot-password?token=' + str(value),
+                'email': email
+            }
+            user = UserProfile.objects.filter(user__email=email).first()
+            if not user:
+                return Response({"success": False, "error": user._errors})
+            else:
+                user.forgot_password = value
+                user.save()
+                html_content = render_to_string(template_name='forgot_password.html', context=ctx)
+                text_content = render_to_string(template_name='forgot_password.html', context=ctx)
+                try:
+                    msg = EmailMultiAlternatives('Forgot password', text_content, DEFAULT_FROM_EMAIL, ['info@rfxme.com'])
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.mixed_subtype = 'related'
+                    msg.send()
+                except Exception as e:
+                    print("error", e)
+        elif request.data.get("token", None):
+            user_data = request.data
+            token1 = user_data["token"]
+            user = UserProfile.objects.filter(forgot_password=token1).first()
+            if user:
+                user.user.set_password(request.data["new_password"])
 
-        html_content = render_to_string(template_name='reset_password.html', context=ctx)
-        text_content = render_to_string(template_name='reset_password.html', context=ctx)
+        return Response('success: Okay')
 
-        try:
-            msg = EmailMultiAlternatives('Forgot password', text_content, DEFAULT_FROM_EMAIL, [email])
-            msg.attach_alternative(html_content, "text/html")
-            msg.mixed_subtype = 'related'
-            msg.send()
-        except:
-            print("error")
+
+
+# class UserViewSet(search.SearchableModelMixin,viewsets.ReadOnlyModelViewSet):
+#     import pdb; pdb.set_trace()
+#     lookup_field = 'username'
+#     lookup_value_regex = '[^/]+'
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
+#     filter_backends = (search.SearchFilter)
+#     search_fields = ('username')
+#     ordering_fields = ('username', 'first_name', 'last_name', 'email')

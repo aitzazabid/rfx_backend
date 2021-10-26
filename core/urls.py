@@ -32,6 +32,7 @@ router.register(r'search', ProfileSearchListView)
 router.register(r'category', CategoryViewSet)
 router.register(r'subcategory', SubCategoryViewSet)
 router.register(r'child_subcategory', ChildSubCategoryViewSet)
+# router.register(r'users', views.UserViewSet)
 urlpatterns = router.urls
 
 urlpatterns = [

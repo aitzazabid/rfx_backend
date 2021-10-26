@@ -18,6 +18,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = "__all__"
+        extra_kwargs = {'email_verification_key': {'write_only': True}}
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

@@ -20,5 +20,5 @@ def send_verification_email(to_email, key, name):
         msg.attach_alternative(html_content, "text/html")
         msg.mixed_subtype = 'related'
         msg.send()
-    except:
-        print("error")
+    except Exception as e:
+        print("error", e)
