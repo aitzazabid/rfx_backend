@@ -36,21 +36,17 @@ urlpatterns = router.urls
 
 urlpatterns = [
     path('login/', Login.as_view(), name='log_in'),
-    path("profile-update/<str:pk>/",views.ProfileViewSet.as_view({
+    path("profile-update/<str:pk>/",views.UpdateProfileViewSet.as_view({
             "put": "update",
         }
     ),name="profile_update",),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('update-profile/<str:pk>/', views.ProfileViewSet.as_view({
-        "put": "update"
-    }), name="update_profile"),
+
     path('accounts/', include('allauth.urls')),
     path('microsoft/', include('microsoft_auth.urls', namespace='microsoft')),
     path('social-auth/', include('social_django.urls', namespace="social")),
     path('reset-password/', ResetPassword.as_view(), name='reset_password'),
-    path('update-profile/<str:pk>/', views.ProfileViewSet.as_view({
-        "put": "update"
-    }), name="update_profile"),
+
     path('verify-email/', VerifyEmail.as_view({"get": "get_user_data"}), name='verify_email'),
     path('forgot-password/', views.ForgotPassword.as_view({
         "post": "get_email"
