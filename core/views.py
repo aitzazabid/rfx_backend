@@ -58,7 +58,8 @@ class LogoutView(APIView):
 class ProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = ProfileSerializer
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
 
     def create(self, request, *args, **kwargs):
         value = randint(100000, 999999)
@@ -99,7 +100,20 @@ class ProfileViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         partial = True
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        first_name = request.data.get("first_name", None)
+        last_name = request.data.get("last_name", None)
+        user_mobile_number = request.data.get("user_mobile_number", None)
+        data = request.data
+        if not user_mobile_number or len(user_mobile_number) != 0:
+            del data["user_mobile_number"]
+        user = request.user
+        if first_name:
+            user.first_name = first_name
+        if last_name:
+            user.last_name = last_name
+        user.save()
+
+        serializer = self.get_serializer(instance, data=data, partial=partial)
         if serializer.is_valid():
             self.perform_update(serializer)
         else:
