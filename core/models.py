@@ -40,7 +40,7 @@ class UserProfile(models.Model):
     company_size = models.CharField(max_length=256, choices=COMPANY_SIZE, default=0, blank=True, null=True)
     company_type = models.CharField(max_length=256, default="")
     year_of_establishment = models.CharField(max_length=256, default=0)
-    user_mobile_number = models.IntegerField(default=0)
+    user_mobile_number = models.IntegerField(default=0, null=True, blank=True)
     company_brand = models.CharField(max_length=256, default="", blank=True, null=True)
     google_id = models.TextField(null=True, blank=True)
     image_url = models.TextField(null=True, blank=True)
