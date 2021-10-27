@@ -284,7 +284,6 @@ class VerifyEmail(viewsets.ModelViewSet):
 class ForgotPassword(viewsets.ModelViewSet):
 
     def get_email(self, request):
-        import pdb; pdb.set_trace()
         if request.data.get("email", None):
             user_data = request.data
             email = user_data["email"]
