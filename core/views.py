@@ -294,7 +294,7 @@ class ForgotPassword(viewsets.ModelViewSet):
             }
             user = UserProfile.objects.filter(user__email=email).first()
             if not user:
-                return Response({"success": False, "error": user._errors})
+                return Response({"success": False, "error": "User does not exist"})
             else:
                 user.forgot_password = value
                 user.save()
@@ -305,6 +305,7 @@ class ForgotPassword(viewsets.ModelViewSet):
                     msg.attach_alternative(html_content, "text/html")
                     msg.mixed_subtype = 'related'
                     msg.send()
+                    return Response({'value':value})
                 except Exception as e:
                     print("error", e)
         elif request.data.get("token", None):
@@ -314,17 +315,7 @@ class ForgotPassword(viewsets.ModelViewSet):
             if user:
                 user.user.set_password(request.data["new_password"])
                 user.user.save()
-
+                return Response('success: Okay')
+            else:
+                return Response({"success": False, "error": "User does not exist"})
         return Response('success: Okay')
-
-
-
-# class UserViewSet(search.SearchableModelMixin,viewsets.ReadOnlyModelViewSet):
-#     import pdb; pdb.set_trace()
-#     lookup_field = 'username'
-#     lookup_value_regex = '[^/]+'
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-#     filter_backends = (search.SearchFilter)
-#     search_fields = ('username')
-#     ordering_fields = ('username', 'first_name', 'last_name', 'email')
