@@ -314,6 +314,7 @@ class ForgotPassword(viewsets.ModelViewSet):
             user = UserProfile.objects.filter(forgot_password=token1).first()
             if user:
                 user.user.set_password(request.data["new_password"])
+                user.user.save()
 
         return Response('success: Okay')
 
