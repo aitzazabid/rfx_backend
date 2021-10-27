@@ -318,4 +318,5 @@ class ForgotPassword(viewsets.ModelViewSet):
                 return Response('success: Okay')
             else:
                 return Response({"success": False, "error": "User does not exist"})
-        return Response('success: Okay')
+        else:
+            return Response({"success": False, "error": "User does not exist"})
