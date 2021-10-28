@@ -23,8 +23,6 @@ from core.views import Login, ProfileViewSet,\
     LogoutView, ProfileSearchListView, ResetPassword,\
     CategoryViewSet, SubCategoryViewSet, ChildSubCategoryViewSet, GoogleSignViewSet, VerifyEmail, ForgotPassword
 
-from django.contrib.auth import views as auth_views
-
 router = DefaultRouter(trailing_slash=False)
 router.register(r'signup', ProfileViewSet)
 router.register(r'google_login', GoogleSignViewSet)
@@ -32,7 +30,7 @@ router.register(r'search', ProfileSearchListView)
 router.register(r'category', CategoryViewSet)
 router.register(r'subcategory', SubCategoryViewSet)
 router.register(r'child_subcategory', ChildSubCategoryViewSet)
-# router.register(r'users', views.UserViewSet)
+router.register(r'fuzzysearch', views.FuzzySearchView)
 urlpatterns = router.urls
 
 urlpatterns = [

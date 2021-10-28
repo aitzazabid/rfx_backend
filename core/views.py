@@ -10,7 +10,7 @@ from core.models import UserProfile, Category, Subcategory, ChildSubcategory
 from core.serializers import ProfileSerializer, \
     UserSerializer, SearchProfileSerializer, \
     ResetPasswordSerializer, CategorySerializer, \
-    SubCategorySerializer, CategorySubcategorySerializer, ChildSubCategorySerializer
+    SubCategorySerializer, CategorySubcategorySerializer, ChildSubCategorySerializer, FuzzySearchSerializer
 from django.contrib.auth.models import User
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
@@ -301,11 +301,12 @@ class ForgotPassword(viewsets.ModelViewSet):
                 html_content = render_to_string(template_name='forgot_password.html', context=ctx)
                 text_content = render_to_string(template_name='forgot_password.html', context=ctx)
                 try:
-                    msg = EmailMultiAlternatives('Forgot password', text_content, DEFAULT_FROM_EMAIL, ['info@rfxme.com'])
+                    msg = EmailMultiAlternatives('Forgot password', text_content, DEFAULT_FROM_EMAIL,
+                                                 ['info@rfxme.com'])
                     msg.attach_alternative(html_content, "text/html")
                     msg.mixed_subtype = 'related'
                     msg.send()
-                    return Response({'value':value})
+                    return Response({'value': value})
                 except Exception as e:
                     print("error", e)
         elif request.data.get("token", None):
@@ -320,3 +321,17 @@ class ForgotPassword(viewsets.ModelViewSet):
                 return Response({"success": False, "error": "User does not exist"})
         else:
             return Response({"success": False, "error": "User does not exist"})
+
+
+class FuzzySearchView(sort.SortedModelMixin, search.SearchableModelMixin, viewsets.ReadOnlyModelViewSet):
+    lookup_field = 'username'
+    lookup_value_regex = '[^/]+'
+    queryset = UserProfile.objects.all()
+    serializer_class = FuzzySearchSerializer
+
+    filter_backends = (search.RankedFuzzySearchFilter, sort.OrderingFilter)
+    search_fields = ('company_name', 'company_brand', 'category')
+    ordering_fields = ('rank', 'username', 'date_joined', 'last_login', 'first_name', 'last_name', 'email')
+    ordering = ('-rank',)
+
+    min_rank = 0.25

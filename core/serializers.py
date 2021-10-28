@@ -10,8 +10,10 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def get_first_name(self, obj):
         return obj.user.first_name
+
     def get_last_name(self, obj):
         return obj.user.last_name
+
     def get_email(self, obj):
         return obj.user.email
 
@@ -84,4 +86,16 @@ class CategorySubcategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
+        fields = "__all__"
+
+
+# class FuzzySearchSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ('username', 'date_joined', 'last_login', 'first_name', 'last_name', 'email')
+
+
+class FuzzySearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
         fields = "__all__"
