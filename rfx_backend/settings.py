@@ -137,6 +137,16 @@ WSGI_APPLICATION = 'rfx_backend.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'HOST': 'localhost',
+#         'NAME': 'rfx_backend',
+#         'USER': 'postgres',
+#         'PASSWORD': 'postgres',
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
