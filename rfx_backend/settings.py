@@ -137,27 +137,18 @@ WSGI_APPLICATION = 'rfx_backend.wsgi.application'
 #     }
 # }
 #for localhost use this database
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'NAME': 'myproject',
+        'USER': 'rfxuser1',
+        'PASSWORD': 'password',
         'HOST': 'localhost',
-        'PORT': '5433',
+        'PORT': '5432',
     }
 }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'myproject',
-#         'USER': 'rfxuser1',
-#         'PASSWORD': 'password',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -250,24 +241,12 @@ import os
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# EMAIL_BACKEND = 'django_amazon_ses.EmailBackend'
-#
-# AWS_SES_ACCESS_KEY_ID = 'AKIA2QOWL7J5DG7PBHEM'
-# AWS_SES_SECRET_ACCESS_KEY = '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'
-# AWS_SES_REGION = 'us-east-2'
-#
-#
-# DEFAULT_FROM_EMAIL = 'RFX ME <info@rfxme.com>'
+EMAIL_BACKEND = 'django_amazon_ses.EmailBackend'
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'usmansaddiqi0524@gmail.com'
-EMAIL_HOST_PASSWORD = 'Pakistan00'
+AWS_SES_ACCESS_KEY_ID = 'AKIA2QOWL7J5DG7PBHEM'
+AWS_SES_SECRET_ACCESS_KEY = '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'
+AWS_SES_REGION = 'us-east-2'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-DEFAULT_FROM_EMAIL = 'usmansaddiqui.12@gmail.com'
-
+DEFAULT_FROM_EMAIL = 'RFX ME <info@rfxme.com>'
 
