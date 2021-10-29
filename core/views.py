@@ -10,7 +10,7 @@ from core.models import UserProfile, Category, Subcategory, ChildSubcategory
 from core.serializers import ProfileSerializer, \
     UserSerializer, SearchProfileSerializer, \
     ResetPasswordSerializer, CategorySerializer, \
-    SubCategorySerializer, CategorySubcategorySerializer, ChildSubCategorySerializer, FuzzySearchSerializer
+    SubCategorySerializer, CategorySubcategorySerializer, ChildSubCategorySerializer
 from django.contrib.auth.models import User
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
@@ -84,6 +84,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
             data["email_verification_key"] = value
             data["expires_in"] = timezone.now() + timedelta(days=3)
             data["verified"] = True
+            data["first_name"] = user.first_name
+            data["last_name"] = user.last_name
             # send_verification_email(user_data["email"], value, user_data["first_name"])
             profile = self.get_serializer(data=data)
             if profile.is_valid():
@@ -327,7 +329,7 @@ class FuzzySearchView(sort.SortedModelMixin, search.SearchableModelMixin, viewse
     lookup_field = 'username'
     lookup_value_regex = '[^/]+'
     queryset = UserProfile.objects.all()
-    serializer_class = FuzzySearchSerializer
+    serializer_class = ProfileSerializer
 
     filter_backends = (search.RankedFuzzySearchFilter, sort.OrderingFilter)
     search_fields = ('company_name', 'company_brand', 'category')

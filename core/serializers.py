@@ -87,15 +87,3 @@ class CategorySubcategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = "__all__"
-
-
-# class FuzzySearchSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ('username', 'date_joined', 'last_login', 'first_name', 'last_name', 'email')
-
-
-class FuzzySearchSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserProfile
-        fields = "__all__"
