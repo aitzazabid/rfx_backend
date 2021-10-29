@@ -326,14 +326,13 @@ class ForgotPassword(viewsets.ModelViewSet):
 
 
 class FuzzySearchView(sort.SortedModelMixin, search.SearchableModelMixin, viewsets.ReadOnlyModelViewSet):
-    lookup_field = 'username'
+    lookup_fields = ('company_name', 'company_brand', 'category')
     lookup_value_regex = '[^/]+'
     queryset = UserProfile.objects.all()
     serializer_class = ProfileSerializer
 
     filter_backends = (search.RankedFuzzySearchFilter, sort.OrderingFilter)
     search_fields = ('company_name', 'company_brand', 'category')
-    ordering_fields = ('rank', 'username', 'date_joined', 'last_login', 'first_name', 'last_name', 'email')
     ordering = ('-rank',)
 
-    min_rank = 0.25
+    min_rank = 0.1
