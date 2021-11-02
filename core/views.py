@@ -29,8 +29,7 @@ class Login(ObtainAuthToken):
 
     def post(self, request, *args, **kwargs):
         user = User.objects.filter(username=request.data["email"]).first()
-        # if user.profile.expires_in > timezone.now() and user.profile.verified == True:
-        if user:
+        if user.profile.expires_in > timezone.now() and user.profile.verified == True:
             if user.check_password(request.data["password"]):
                 token, created = Token.objects.get_or_create(user=user)
                 response = ProfileSerializer(user.profile).data
@@ -83,10 +82,9 @@ class ProfileViewSet(viewsets.ModelViewSet):
             data["user"] = user.id
             data["email_verification_key"] = value
             data["expires_in"] = timezone.now() + timedelta(days=3)
-            data["verified"] = True
             data["first_name"] = user.first_name
             data["last_name"] = user.last_name
-            # send_verification_email(user_data["email"], value, user_data["first_name"])
+            send_verification_email(user_data["email"], value, user_data["first_name"])
             profile = self.get_serializer(data=data)
             if profile.is_valid():
                 profile.save()
@@ -273,6 +271,7 @@ class VerifyEmail(viewsets.ModelViewSet):
             if user.expires_in > timezone.now():
                 user.verified = True
                 user.email_verification_key = None
+                user.save()
                 return Response({
                     "Success": True,
                     "message": "Your account in verify"
@@ -303,8 +302,7 @@ class ForgotPassword(viewsets.ModelViewSet):
                 html_content = render_to_string(template_name='forgot_password.html', context=ctx)
                 text_content = render_to_string(template_name='forgot_password.html', context=ctx)
                 try:
-                    msg = EmailMultiAlternatives('Forgot password', text_content, DEFAULT_FROM_EMAIL,
-                                                 ['info@rfxme.com'])
+                    msg = EmailMultiAlternatives('Forgot password', text_content, DEFAULT_FROM_EMAIL, [email])
                     msg.attach_alternative(html_content, "text/html")
                     msg.mixed_subtype = 'related'
                     msg.send()

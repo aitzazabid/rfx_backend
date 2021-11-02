@@ -19,8 +19,8 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from core import views
 from django.urls import path, include
-from core.views import Login, ProfileViewSet,\
-    LogoutView, ProfileSearchListView, ResetPassword,\
+from core.views import Login, ProfileViewSet, \
+    LogoutView, ProfileSearchListView, ResetPassword, \
     CategoryViewSet, SubCategoryViewSet, ChildSubCategoryViewSet, GoogleSignViewSet, VerifyEmail, ForgotPassword
 
 router = DefaultRouter(trailing_slash=False)
@@ -35,10 +35,10 @@ urlpatterns = router.urls
 
 urlpatterns = [
     path('login/', Login.as_view(), name='log_in'),
-    path("profile-update/<str:pk>/",views.UpdateProfileViewSet.as_view({
-            "put": "update",
-        }
-    ),name="profile_update",),
+    path("profile-update/<str:pk>/", views.UpdateProfileViewSet.as_view({
+        "put": "update",
+    }
+    ), name="profile_update", ),
     path('logout/', LogoutView.as_view(), name='logout'),
 
     path('accounts/', include('allauth.urls')),
