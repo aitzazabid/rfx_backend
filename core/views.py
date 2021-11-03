@@ -296,7 +296,7 @@ class ForgotPassword(viewsets.ModelViewSet):
             email = user_data["email"]
             value = randint(100000, 999999)
             ctx = {
-                'link': 'http://rfxmedemo.com/forgot-password?token=' + str(value),
+                'link': 'http://rfxmedemo.com/forgot-password/' + str(value),
                 'email': email
             }
             user = UserProfile.objects.filter(user__email=email).first()
