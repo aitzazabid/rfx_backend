@@ -21,10 +21,13 @@ from core import views
 from django.urls import path, include
 from core.views import Login, ProfileViewSet, \
     LogoutView, ProfileSearchListView, ResetPassword, \
-    CategoryViewSet, SubCategoryViewSet, ChildSubCategoryViewSet, GoogleSignViewSet, VerifyEmail, ForgotPassword
+    CategoryViewSet, SubCategoryViewSet, ChildSubCategoryViewSet,\
+    GoogleSignViewSet, VerifyEmail, ForgotPassword, SendVerificationEmail
 
 router = DefaultRouter(trailing_slash=False)
 router.register(r'signup', ProfileViewSet)
+router.register(r'send_verification_email', SendVerificationEmail)
+
 router.register(r'google_login', GoogleSignViewSet)
 router.register(r'search', ProfileSearchListView)
 router.register(r'category', CategoryViewSet)

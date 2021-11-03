@@ -1,6 +1,7 @@
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from rfx_backend.settings import DEFAULT_FROM_EMAIL
+from django.utils import timezone
 
 
 def send_verification_email(to_email, key, name):
@@ -19,3 +20,13 @@ def send_verification_email(to_email, key, name):
         msg.send()
     except Exception as e:
         print("error", e)
+
+
+def allow_user_login(user):
+    allow_login = False
+    if user.profile.expires_in > timezone.now():
+        allow_login = True
+    if not allow_login:
+        if user.profile.verified:
+            allow_login = False
+    return allow_login

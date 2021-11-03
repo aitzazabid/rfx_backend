@@ -22,33 +22,43 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from rfx_backend.settings import DEFAULT_FROM_EMAIL
 from rest_fuzzysearch import search, sort
-from core.utils import send_verification_email
+from core.utils import send_verification_email, allow_user_login
+
+REST_ERROR_CODE = "rest_error"
+VERIFICATION_REQUIRED = 1
 
 
 class Login(ObtainAuthToken):
 
     def post(self, request, *args, **kwargs):
         user = User.objects.filter(username=request.data["email"]).first()
-        allow_login = False
-        if user.profile.expires_in > timezone.now():
-            allow_login = True
-        if not allow_login:
-            if user.profile.verified:
-                allow_login = False
+        allow_login = allow_user_login(user)
         if allow_login:
-            if user.check_password(request.data["password"]) :
+            if user.check_password(request.data["password"]):
                 token, created = Token.objects.get_or_create(user=user)
                 response = ProfileSerializer(user.profile).data
+                user.profile.check_login_attempt += 1
+                user.profile.save()
                 response["first_name"] = user.first_name
                 response["last_name"] = user.last_name
                 response["email"] = user.email
                 response["token"] = token.key
+                response["success"] = True
+                response["login_attempt"] = user.profile.check_login_attempt
+
                 return Response(response)
 
-        return Response({
-            "success": False,
-            "message": "user does not exists"
-        })
+            else:
+                return Response({
+                    "success": False,
+                    "message": "user does not exists"
+                })
+        else:
+            return Response({
+                "success": False,
+                "message": "user does not exists",
+                REST_ERROR_CODE: VERIFICATION_REQUIRED
+            })
 
 
 class LogoutView(APIView):
@@ -67,8 +77,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
 
     def create(self, request, *args, **kwargs):
-        value = randint(100000, 999999)
-        # request.data._mutable = True
         if "email" not in request.data:
             return Response({"success": False, "error": {
                 "email": [
@@ -76,7 +84,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 ]
             }})
         user_data = request.data
-        # request.data._mutable = True
         user_data["username"] = request.data["email"]
 
         user = UserSerializer(data=user_data)
@@ -86,11 +93,10 @@ class ProfileViewSet(viewsets.ModelViewSet):
             user.save()
             data = request.data
             data["user"] = user.id
-            data["email_verification_key"] = value
             data["expires_in"] = timezone.now() + timedelta(days=3)
             data["first_name"] = user.first_name
             data["last_name"] = user.last_name
-            send_verification_email(user_data["email"], value, user_data["first_name"])
+            data["check_login_attempt"] = 0
             profile = self.get_serializer(data=data)
             if profile.is_valid():
                 profile.save()
@@ -101,6 +107,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 response["user"] = user.first_name
                 token, created = Token.objects.get_or_create(user=user)
                 response["token"] = token.key
+                response["login_attempt"] = 0
+
                 return Response(response)
             return Response({"success": False, "error": profile._errors})
         return Response({"success": False, "error": user._errors})
@@ -136,6 +144,12 @@ class UpdateProfileViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
+        if not allow_user_login(request.user):
+            return Response({
+                "success": False,
+                "message": "user does not exists",
+                REST_ERROR_CODE: VERIFICATION_REQUIRED
+            })
         partial = True
         instance = self.get_object()
         first_name = request.data.get("first_name", None)
@@ -154,6 +168,26 @@ class UpdateProfileViewSet(viewsets.ModelViewSet):
             return Response({"success": False, "error": serializer._errors})
 
         return Response(serializer.data)
+
+
+class SendVerificationEmail(viewsets.ModelViewSet):
+    queryset = UserProfile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request):
+        user = request.user
+        to_email = user.email
+        name = user.first_name
+        value = randint(100000, 999999)
+        user.profile.email_verification_key=value
+        user.profile.save()
+        print("value", value)
+        send_verification_email(to_email, value, name)
+        return Response({
+            "success": True,
+            "message": "verification email sent"
+        })
 
 
 class ProfileSearchListView(viewsets.ModelViewSet):

@@ -46,6 +46,7 @@ class UserProfile(models.Model):
     image_url = models.TextField(null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, null=True, blank=True)
 
+    check_login_attempt = models.IntegerField(default=0, blank=True, null=True)
     email_verification_key = models.TextField(null=True, blank=True)
     verified = models.BooleanField(default=False)
     expires_in = models.DateTimeField(null=True, blank=True)
