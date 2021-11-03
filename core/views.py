@@ -29,8 +29,14 @@ class Login(ObtainAuthToken):
 
     def post(self, request, *args, **kwargs):
         user = User.objects.filter(username=request.data["email"]).first()
-        if user.profile.expires_in > timezone.now() and user.profile.verified == True:
-            if user.check_password(request.data["password"]):
+        allow_login = False
+        if user.profile.expires_in > timezone.now():
+            allow_login = True
+        if not allow_login:
+            if user.profile.verified:
+                allow_login = False
+        if allow_login:
+            if user.check_password(request.data["password"]) :
                 token, created = Token.objects.get_or_create(user=user)
                 response = ProfileSerializer(user.profile).data
                 response["first_name"] = user.first_name
