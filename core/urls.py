@@ -22,7 +22,7 @@ from django.urls import path, include
 from core.views import Login, ProfileViewSet, \
     LogoutView, ProfileSearchListView, ResetPassword, \
     CategoryViewSet, SubCategoryViewSet, ChildSubCategoryViewSet, \
-    GoogleSignViewSet, VerifyEmail, ForgotPassword, SendVerificationEmail
+    GoogleSignViewSet, VerifyEmail, ForgotPassword, SendVerificationEmail, SearchFilters
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -36,6 +36,7 @@ router.register(r'category', CategoryViewSet)
 router.register(r'subcategory', SubCategoryViewSet)
 router.register(r'child_subcategory', ChildSubCategoryViewSet)
 router.register(r'fuzzysearch', views.FuzzySearchView)
+
 urlpatterns = router.urls
 
 urlpatterns = [
@@ -55,6 +56,9 @@ urlpatterns = [
     path('forgot-password/', views.ForgotPassword.as_view({
         "post": "get_email"
     }), name="forgot_password"),
+    path('searchFilter/', views.SearchFilters.as_view({
+        "get": "list"
+    }), name="search_filters"),
 ]
 urlpatterns += router.urls
 

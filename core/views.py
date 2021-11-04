@@ -24,6 +24,8 @@ from rfx_backend.settings import DEFAULT_FROM_EMAIL
 from rest_fuzzysearch import search, sort
 from core.utils import send_verification_email, allow_user_login
 from django.shortcuts import redirect
+from advanced_filters.admin import AdminAdvancedFiltersMixin
+from django.db.models import Q
 
 REST_ERROR_CODE = "rest_error"
 VERIFICATION_REQUIRED = 1
@@ -174,6 +176,7 @@ class UpdateProfileViewSet(viewsets.ModelViewSet):
 class SendVerificationEmail(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = ProfileSerializer
+
     # permission_classes = [IsAuthenticated]
 
     def create(self, request):
@@ -183,7 +186,7 @@ class SendVerificationEmail(viewsets.ModelViewSet):
         to_email = user.email
         name = user.first_name
         value = randint(100000, 999999)
-        user.profile.email_verification_key=value
+        user.profile.email_verification_key = value
         user.profile.save()
         print("value", value)
         send_verification_email(to_email, value, name)
@@ -275,10 +278,13 @@ class GoogleSignViewSet(viewsets.ModelViewSet):
             user = user.user
             token, created = Token.objects.get_or_create(user=user)
             response = ProfileSerializer(user.profile).data
+            user.profile.check_login_attempt += 1
+            user.profile.save()
             response["first_name"] = user.first_name
             response["last_name"] = user.last_name
             response["email"] = user.email
             response["token"] = token.key
+            response["login_attempt"] = user.profile.check_login_attempt
             return Response(response)
         else:
             user = UserSerializer(data=user_data)
@@ -293,12 +299,15 @@ class GoogleSignViewSet(viewsets.ModelViewSet):
                 if profile.is_valid():
                     profile.save()
                     response = profile.data
+                    user.profile.check_login_attempt = 0
+                    user.profile.save()
                     response["first_name"] = user.first_name
                     response["last_name"] = user.last_name
                     response["email"] = user.email
                     response["user"] = user.first_name
                     token, created = Token.objects.get_or_create(user=user)
                     response["token"] = token.key
+                    response["login_attempt"] = user.profile.check_login_attempt
                     return Response(response)
                 return Response({"success": False, "error": profile._errors})
             return Response({"success": False, "error": user._errors})
@@ -371,3 +380,32 @@ class FuzzySearchView(sort.SortedModelMixin, search.SearchableModelMixin, viewse
     ordering = ('-rank',)
 
     min_rank = 0.1
+
+
+class SearchFilters(viewsets.ModelViewSet):
+    serializer_class = ProfileSerializer
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+
+    def get_queryset(self):
+        data = self.request.GET
+        user = UserProfile.objects.all()
+        if data.get('location'):
+            user = user.filter(location=data['location'])
+        if data.get('company_type'):
+            user = user.filter(company_type=data['company_type'])
+        if data.get('no_employee_from') and data.get('no_employee_to'):
+            user = user.filter(total_employees__gte=data['no_employee_from'],
+                               total_employees__lte=data['no_employee_to'])
+        elif data.get('no_employee_from'):
+            user = user.filter(total_employees__gte=data['no_employee_from'])
+        elif data.get('no_employee_to'):
+            user = user.filter(total_employees__lte=data['no_employee_to'])
+
+        if data.get('revenue_from') and data.get('revenue_to'):
+            user = user.filter(annual_revenue__gte=data['revenue_from'], annual_revenue__lte=data['revenue_to'])
+        elif data.get('revenue_from'):
+            user = user.filter(annual_revenue__gte=data['revenue_from'])
+        elif data.get('revenue_to'):
+            user = user.filter(annual_revenue__lte=data['revenue_to'])
+
+        return user
