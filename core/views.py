@@ -23,6 +23,7 @@ from django.template.loader import render_to_string
 from rfx_backend.settings import DEFAULT_FROM_EMAIL
 from rest_fuzzysearch import search, sort
 from core.utils import send_verification_email, allow_user_login
+from django.shortcuts import redirect
 
 REST_ERROR_CODE = "rest_error"
 VERIFICATION_REQUIRED = 1
@@ -173,10 +174,12 @@ class UpdateProfileViewSet(viewsets.ModelViewSet):
 class SendVerificationEmail(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def create(self, request):
-        user = request.user
+        email = request.data.get("email", None)
+        user = User.objects.filter(email=email).first()
+
         to_email = user.email
         name = user.first_name
         value = randint(100000, 999999)
@@ -312,14 +315,8 @@ class VerifyEmail(viewsets.ModelViewSet):
                 user.verified = True
                 user.email_verification_key = None
                 user.save()
-                return Response({
-                    "Success": True,
-                    "message": "Your account in verify"
-                })
-        return Response({
-            "Success": False,
-            "message": "Email verification key is expired"
-        })
+                return redirect("http://rfxmedemo.com")
+        return redirect("http://rfxmedemo.com/error-message")
 
 
 class ForgotPassword(viewsets.ModelViewSet):
