@@ -21,8 +21,10 @@ from core import views
 from django.urls import path, include
 from core.views import Login, ProfileViewSet, \
     LogoutView, ProfileSearchListView, ResetPassword, \
-    CategoryViewSet, SubCategoryViewSet, ChildSubCategoryViewSet,\
+    CategoryViewSet, SubCategoryViewSet, ChildSubCategoryViewSet, \
     GoogleSignViewSet, VerifyEmail, ForgotPassword, SendVerificationEmail
+from django.conf import settings
+from django.conf.urls.static import static
 
 router = DefaultRouter(trailing_slash=False)
 router.register(r'signup', ProfileViewSet)
@@ -55,3 +57,7 @@ urlpatterns = [
     }), name="forgot_password"),
 ]
 urlpatterns += router.urls
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

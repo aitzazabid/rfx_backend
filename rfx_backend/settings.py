@@ -151,7 +151,6 @@ DATABASES = {
     }
 }
 
-
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -253,6 +252,7 @@ LOGOUT_REDIRECT_URL = '/'
 import os
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 EMAIL_BACKEND = 'django_amazon_ses.EmailBackend'
 
@@ -261,4 +261,3 @@ AWS_SES_SECRET_ACCESS_KEY = 'ZEOVfTsCza2AGZHVaV1lRohTpq7jaJtscY+l1i7N'
 AWS_SES_REGION = 'eu-west-2'
 
 DEFAULT_FROM_EMAIL = 'RFX ME <info@rfxme.com>'
-
