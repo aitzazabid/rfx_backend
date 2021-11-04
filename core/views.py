@@ -24,8 +24,6 @@ from rfx_backend.settings import DEFAULT_FROM_EMAIL
 from rest_fuzzysearch import search, sort
 from core.utils import send_verification_email, allow_user_login
 from django.shortcuts import redirect
-from advanced_filters.admin import AdminAdvancedFiltersMixin
-from django.db.models import Q
 
 REST_ERROR_CODE = "rest_error"
 VERIFICATION_REQUIRED = 1
