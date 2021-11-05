@@ -161,13 +161,11 @@ class UpdateProfileViewSet(viewsets.ModelViewSet):
         if last_name:
             user.last_name = last_name
         user.save()
-
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         if serializer.is_valid():
             self.perform_update(serializer)
         else:
             return Response({"success": False, "error": serializer._errors})
-
         return Response(serializer.data)
 
 
@@ -276,6 +274,7 @@ class GoogleSignViewSet(viewsets.ModelViewSet):
             user = user.user
             token, created = Token.objects.get_or_create(user=user)
             response = ProfileSerializer(user.profile).data
+            user.profile.expires_in = timezone.now() + timedelta(days=3)
             user.profile.check_login_attempt += 1
             user.profile.save()
             response["first_name"] = user.first_name

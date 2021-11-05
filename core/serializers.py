@@ -22,6 +22,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = "__all__"
         extra_kwargs = {'email_verification_key': {'write_only': True}}
 
+    image_url = serializers.SerializerMethodField('get_image_url')
+
+    def get_image_url(self, obj):
+        return obj.image.url
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
