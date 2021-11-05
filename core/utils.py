@@ -6,7 +6,7 @@ from django.utils import timezone
 
 def send_verification_email(to_email, key, name):
     ctx = {
-        'link': 'http://18.118.115.142/verify-email?token=' + str(key),
+        'link': 'http://18.118.115.142/verify-email/?token=' + str(key),
         'name': name
     }
 
