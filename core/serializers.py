@@ -20,7 +20,9 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def get_p_image(self, obj):
         if obj.image:
-            return f"http://18.118.115.142{obj.image.url}"
+            request = self.context['request']
+            return request.build_absolute_uri() + obj.image.url
+            # return f"http://18.118.115.142{obj.image.url}"
             # return f"http://127.0.0.1:8000{obj.image.url}"
         return ''
     class Meta:

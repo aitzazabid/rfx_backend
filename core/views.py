@@ -24,6 +24,9 @@ from rfx_backend.settings import DEFAULT_FROM_EMAIL
 from rest_fuzzysearch import search, sort
 from core.utils import send_verification_email, allow_user_login
 from django.shortcuts import redirect
+from django.urls import resolve
+from django.contrib.sites.models import Site
+from django.contrib.sites.shortcuts import get_current_site
 
 REST_ERROR_CODE = "rest_error"
 VERIFICATION_REQUIRED = 1
@@ -32,12 +35,15 @@ VERIFICATION_REQUIRED = 1
 class Login(ObtainAuthToken):
 
     def post(self, request, *args, **kwargs):
+        # current_url = request.resolver_match.view_name
         user = User.objects.filter(username=request.data["email"]).first()
+        # import pdb; pdb.set_trace()
+        # full_url = request.build_absolute_uri() + user.profile.image.url
         allow_login = allow_user_login(user)
         if allow_login:
             if user.check_password(request.data["password"]):
                 token, created = Token.objects.get_or_create(user=user)
-                response = ProfileSerializer(user.profile).data
+                response = ProfileSerializer(user.profile, context={'request': request}).data
                 user.profile.check_login_attempt += 1
                 user.profile.save()
                 response["first_name"] = user.first_name
