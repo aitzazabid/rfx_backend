@@ -57,7 +57,7 @@ urlpatterns = [
         "post": "get_email"
     }), name="forgot_password"),
     path('searchFilter/', views.SearchFilters.as_view({
-        "get": "list"
+        "post": "list"
     }), name="search_filters"),
 ]
 urlpatterns += router.urls

@@ -35,10 +35,7 @@ VERIFICATION_REQUIRED = 1
 class Login(ObtainAuthToken):
 
     def post(self, request, *args, **kwargs):
-        # current_url = request.resolver_match.view_name
         user = User.objects.filter(username=request.data["email"]).first()
-        # import pdb; pdb.set_trace()
-        # full_url = request.build_absolute_uri() + user.profile.image.url
         allow_login = allow_user_login(user)
         if allow_login:
             if user.check_password(request.data["password"]):
@@ -386,16 +383,18 @@ class FuzzySearchView(sort.SortedModelMixin, search.SearchableModelMixin, viewse
 
 
 class SearchFilters(viewsets.ModelViewSet):
+    queryset = UserProfile.objects.all()
     serializer_class = ProfileSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication]
 
     def get_queryset(self):
-        data = self.request.GET
+        data = self.request.data
         user = UserProfile.objects.all()
         if data.get('location'):
-            user = user.filter(location=data['location'])
+            user = user.filter(location__in=data.get('location'))
         if data.get('company_type'):
-            user = user.filter(company_type=data['company_type'])
+            user = user.filter(company_type__in=data['company_type'])
+
         if data.get('no_employee_from') and data.get('no_employee_to'):
             user = user.filter(total_employees__gte=data['no_employee_from'],
                                total_employees__lte=data['no_employee_to'])
