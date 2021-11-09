@@ -13,6 +13,16 @@ def productFile(instance, filename):
     return '/'.join(['products', str(instance.id), filename])
 
 
+def PublicationFile(instance, filename):
+    return '/'.join(['publications', str(instance.id), filename])
+
+
+class Publication(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    name_of_publication = models.CharField(max_length=256, default=0)
+    docfile = models.FileField(upload_to=PublicationFile)
+
+
 class Category(models.Model):
     name = models.CharField(max_length=256)
     description = models.TextField()

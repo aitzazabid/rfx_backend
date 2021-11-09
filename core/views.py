@@ -6,11 +6,11 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from core.models import UserProfile, Category, Subcategory, ChildSubcategory
+from core.models import UserProfile, Category, Subcategory, ChildSubcategory, Publication
 from core.serializers import ProfileSerializer, \
     UserSerializer, SearchProfileSerializer, \
     ResetPasswordSerializer, CategorySerializer, \
-    SubCategorySerializer, CategorySubcategorySerializer, ChildSubCategorySerializer
+    SubCategorySerializer, CategorySubcategorySerializer, ChildSubCategorySerializer, PublicationSerializer
 from django.contrib.auth.models import User
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
@@ -411,3 +411,17 @@ class SearchFilters(viewsets.ModelViewSet):
             user = user.filter(annual_revenue__lte=data['revenue_to'])
 
         return user
+
+
+class PublicationView(viewsets.ModelViewSet):
+    queryset = Publication.objects.all()
+    serializer_class = PublicationSerializer
+
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        request.data['user'] = user.id
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer._errors)

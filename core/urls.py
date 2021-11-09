@@ -22,7 +22,7 @@ from django.urls import path, include
 from core.views import Login, ProfileViewSet, \
     LogoutView, ProfileSearchListView, ResetPassword, \
     CategoryViewSet, SubCategoryViewSet, ChildSubCategoryViewSet, \
-    GoogleSignViewSet, VerifyEmail, ForgotPassword, SendVerificationEmail, SearchFilters
+    GoogleSignViewSet, VerifyEmail, ForgotPassword, SendVerificationEmail, SearchFilters, PublicationView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -59,6 +59,9 @@ urlpatterns = [
     path('searchFilter/', views.SearchFilters.as_view({
         "post": "list"
     }), name="search_filters"),
+    path('add-publication/', views.PublicationView.as_view({
+        "post": "create"
+    }), name="add_publication"),
 ]
 urlpatterns += router.urls
 
