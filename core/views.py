@@ -6,11 +6,11 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from core.models import UserProfile, Category, Subcategory, ChildSubcategory
+from core.models import UserProfile, Category, Subcategory, ChildSubcategory, Publication
 from core.serializers import ProfileSerializer, \
     UserSerializer, SearchProfileSerializer, \
     ResetPasswordSerializer, CategorySerializer, \
-    SubCategorySerializer, CategorySubcategorySerializer, ChildSubCategorySerializer
+    SubCategorySerializer, CategorySubcategorySerializer, ChildSubCategorySerializer, PublicationSerializer
 from django.contrib.auth.models import User
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
@@ -24,6 +24,7 @@ from rfx_backend.settings import DEFAULT_FROM_EMAIL
 from rest_fuzzysearch import search, sort
 from core.utils import send_verification_email, allow_user_login
 from django.shortcuts import redirect
+from django.contrib.sites.models import Site
 
 REST_ERROR_CODE = "rest_error"
 VERIFICATION_REQUIRED = 1
@@ -406,3 +407,20 @@ class SearchFilters(viewsets.ModelViewSet):
             user = user.filter(annual_revenue__lte=data['revenue_to'])
 
         return user
+
+
+class PublicationView(viewsets.ModelViewSet):
+    queryset = Publication.objects.all()
+    serializer_class = PublicationSerializer
+
+    def postData(self, request):
+        import pdb; pdb.set_trace()
+        user = request.user
+        # user = UserProfile.objects.filter(user=user)
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            user.profile.publication_id = serializer.data['id']
+            user.profile.save()
+            return Response(serializer.data)
+        return Response(serializer._errors)

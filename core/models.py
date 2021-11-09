@@ -13,9 +13,18 @@ def productFile(instance, filename):
     return '/'.join(['products', str(instance.id), filename])
 
 
+def PublicationFile(instance, filename):
+    return '/'.join(['publications', str(instance.id), filename])
+
+
 class Category(models.Model):
     name = models.CharField(max_length=256)
     description = models.TextField()
+
+
+class Publication(models.Model):
+    name_of_publication = models.CharField(max_length=256, default=0)
+    docfile = models.FileField(upload_to=PublicationFile)
 
 
 class UserProfile(models.Model):
@@ -45,6 +54,7 @@ class UserProfile(models.Model):
     google_id = models.TextField(null=True, blank=True)
     image_url = models.TextField(null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, null=True, blank=True)
+    publication = models.ForeignKey(Publication, on_delete=models.DO_NOTHING, null=True, blank=True)
 
     check_login_attempt = models.IntegerField(default=0, blank=True, null=True)
     email_verification_key = models.TextField(null=True, blank=True)
@@ -67,3 +77,4 @@ class ChildSubcategory(models.Model):
     category = models.ForeignKey(Subcategory, related_name="child_category", on_delete=models.CASCADE)
     name = models.CharField(max_length=256)
     description = models.TextField()
+

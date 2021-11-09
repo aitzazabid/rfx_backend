@@ -1,12 +1,14 @@
 from rest_framework import serializers
-from core.models import UserProfile, Category, Subcategory, ChildSubcategory
+from core.models import UserProfile, Category, Subcategory, ChildSubcategory, Publication
 from django.contrib.auth.models import User
+from django.conf import settings
 
 
 class ProfileSerializer(serializers.ModelSerializer):
     first_name = serializers.SerializerMethodField()
     last_name = serializers.SerializerMethodField()
     email = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
 
     def get_first_name(self, obj):
         return obj.user.first_name
@@ -21,6 +23,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = "__all__"
         extra_kwargs = {'email_verification_key': {'write_only': True}}
+
+    def get_image_url(self, user):
+        request = self.context.get('request')
+        photo_url = user.image.url
+        return request.build_absolute_uri(photo_url)
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -86,4 +93,10 @@ class CategorySubcategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
+        fields = "__all__"
+
+
+class PublicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Publication
         fields = "__all__"

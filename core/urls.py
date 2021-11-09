@@ -36,6 +36,7 @@ router.register(r'category', CategoryViewSet)
 router.register(r'subcategory', SubCategoryViewSet)
 router.register(r'child_subcategory', ChildSubCategoryViewSet)
 router.register(r'fuzzysearch', views.FuzzySearchView)
+# router.register(r'add-publication/', views.PublicationView)
 
 urlpatterns = router.urls
 
@@ -59,9 +60,15 @@ urlpatterns = [
     path('searchFilter/', views.SearchFilters.as_view({
         "get": "list"
     }), name="search_filters"),
+    path('add-publication/', views.PublicationView.as_view({
+        "post": "postData"
+    }), name="add_publication"),
 ]
+
 urlpatterns += router.urls
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)
+
+
