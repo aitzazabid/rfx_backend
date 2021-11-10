@@ -324,7 +324,7 @@ class VerifyEmail(viewsets.ModelViewSet):
                 user.verified = True
                 user.email_verification_key = None
                 user.save()
-                return redirect("http://rfxmedemo.com")
+                return redirect("http://rfxmedemo.com/login")
         return redirect("http://rfxmedemo.com/error-message")
 
 
