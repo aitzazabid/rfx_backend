@@ -6,11 +6,11 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from core.models import UserProfile, Category, Subcategory, ChildSubcategory, Publication
+from core.models import UserProfile, Category, Subcategory, ChildSubcategory, Publication, FollowSupplier
 from core.serializers import ProfileSerializer, \
     UserSerializer, SearchProfileSerializer, \
     ResetPasswordSerializer, CategorySerializer, \
-    SubCategorySerializer, CategorySubcategorySerializer, ChildSubCategorySerializer, PublicationSerializer
+    SubCategorySerializer, CategorySubcategorySerializer, ChildSubCategorySerializer, PublicationSerializer, SaveSupplierSerializer
 from django.contrib.auth.models import User
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
@@ -24,6 +24,7 @@ from rfx_backend.settings import DEFAULT_FROM_EMAIL
 from rest_fuzzysearch import search, sort
 from core.utils import send_verification_email, allow_user_login
 from django.shortcuts import redirect
+from core import constants
 from django.urls import resolve
 from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
@@ -276,7 +277,7 @@ class GoogleSignViewSet(viewsets.ModelViewSet):
         if user:
             user = user.user
             token, created = Token.objects.get_or_create(user=user)
-            response = ProfileSerializer(user.profile).data
+            response = ProfileSerializer(user.profile, context={'request': request}).data
             user.profile.expires_in = timezone.now() + timedelta(days=3)
             user.profile.check_login_attempt += 1
             user.profile.save()
@@ -324,8 +325,8 @@ class VerifyEmail(viewsets.ModelViewSet):
                 user.verified = True
                 user.email_verification_key = None
                 user.save()
-                return redirect("https://rfxmedemo.com/login")
-        return redirect("https://rfxmedemo.com/error-message")
+                return redirect(constants.login)
+        return redirect(constants.error_message)
 
 
 class ForgotPassword(viewsets.ModelViewSet):
@@ -336,7 +337,7 @@ class ForgotPassword(viewsets.ModelViewSet):
             email = user_data["email"]
             value = randint(100000, 999999)
             ctx = {
-                'link': 'https://rfxmedemo.com/forgot-password/' + str(value),
+                'link': constants.forgot_password + str(value),
                 'email': email
             }
             user = UserProfile.objects.filter(user__email=email).first()
@@ -425,3 +426,44 @@ class PublicationView(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer._errors)
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        user1 = self.queryset.filter(user=user.id)
+        return Response(self.get_serializer(user1, many=True).data)
+
+
+class SaveSupplierView(viewsets.ModelViewSet):
+    queryset = FollowSupplier.objects.all()
+    serializer_class = SaveSupplierSerializer
+
+    def create(self, request, *args, **kwargs):
+        following, created = FollowSupplier.objects.get_or_create(user_id=request.user.id,
+                                                                  following_user_id= request.data['id'])
+        if created:
+            return Response({
+                "success": True,
+                "message": "supplier saved"
+            })
+        else:
+            FollowSupplier.objects.filter(user_id=request.user.id,
+                                          following_user=request.data['id']).delete()
+        return Response({
+            "success": True,
+            "message": "supper remove from the save list"
+        })
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        following = FollowSupplier.objects.filter(user=user).values_list("following_user",flat=True).distinct()
+        response = dict()
+        response["success"] = True
+        response["data"] = []
+        if following:
+            following = UserProfile.objects.filter(user__id__in=list(following))
+            serializer = ProfileSerializer(following, many=True, context={'request': request})
+
+            response["data"] = serializer.data
+            return Response(response)
+        return Response(response)
+

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from core.models import UserProfile, Category, Subcategory, ChildSubcategory, Publication
+from core.models import UserProfile, Category, Subcategory, ChildSubcategory, Publication, FollowSupplier
 from django.contrib.auth.models import User
 
 
@@ -100,4 +100,10 @@ class CategorySubcategorySerializer(serializers.ModelSerializer):
 class PublicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Publication
+        fields = "__all__"
+
+
+class SaveSupplierSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FollowSupplier
         fields = "__all__"

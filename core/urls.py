@@ -62,6 +62,12 @@ urlpatterns = [
     path('add-publication/', views.PublicationView.as_view({
         "post": "create"
     }), name="add_publication"),
+    path('get-publication/', views.PublicationView.as_view({
+        "get": "list"
+    }), name="get_publication"),
+    path('save-supplier/', views.SaveSupplierView.as_view({
+        "post": "create", "get": "list"
+    }), name="save_supplier"),
 ]
 urlpatterns += router.urls
 

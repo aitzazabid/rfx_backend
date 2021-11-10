@@ -23,6 +23,11 @@ class Publication(models.Model):
     docfile = models.FileField(upload_to=PublicationFile)
 
 
+class FollowSupplier(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='usersupplier')
+    following_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='followsupplier')
+
+
 class Category(models.Model):
     name = models.CharField(max_length=256)
     description = models.TextField()
