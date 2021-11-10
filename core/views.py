@@ -382,6 +382,30 @@ class FuzzySearchView(sort.SortedModelMixin, search.SearchableModelMixin, viewse
 
     min_rank = 0.1
 
+    def get_queryset(self):
+        data = self.request.GET
+        user = super(FuzzySearchView, self).get_queryset()
+        if data.get('location'):
+            user = user.filter(location__in=data.get('location').split(","))
+        if data.get('company_type'):
+            user = user.filter(company_type__in=data['company_type'].split(","))
+        if data.get('no_employee_from') and data.get('no_employee_to'):
+            user = user.filter(total_employees__gte=data['no_employee_from'],
+                               total_employees__lte=data['no_employee_to'])
+        elif data.get('no_employee_from'):
+            user = user.filter(total_employees__gte=data['no_employee_from'])
+        elif data.get('no_employee_to'):
+            user = user.filter(total_employees__lte=data['no_employee_to'])
+
+        if data.get('revenue_from') and data.get('revenue_to'):
+            user = user.filter(annual_revenue__gte=data['revenue_from'], annual_revenue__lte=data['revenue_to'])
+        elif data.get('revenue_from'):
+            user = user.filter(annual_revenue__gte=data['revenue_from'])
+        elif data.get('revenue_to'):
+            user = user.filter(annual_revenue__lte=data['revenue_to'])
+
+        return user
+
 
 class SearchFilters(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
