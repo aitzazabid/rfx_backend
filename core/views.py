@@ -324,8 +324,8 @@ class VerifyEmail(viewsets.ModelViewSet):
                 user.verified = True
                 user.email_verification_key = None
                 user.save()
-                return redirect("http://rfxmedemo.com/login")
-        return redirect("http://rfxmedemo.com/error-message")
+                return redirect("https://rfxmedemo.com/login")
+        return redirect("https://rfxmedemo.com/error-message")
 
 
 class ForgotPassword(viewsets.ModelViewSet):
@@ -336,7 +336,7 @@ class ForgotPassword(viewsets.ModelViewSet):
             email = user_data["email"]
             value = randint(100000, 999999)
             ctx = {
-                'link': 'http://rfxmedemo.com/forgot-password/' + str(value),
+                'link': 'https://rfxmedemo.com/forgot-password/' + str(value),
                 'email': email
             }
             user = UserProfile.objects.filter(user__email=email).first()
