@@ -13,16 +13,13 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-import rest_framework
-from django.contrib import admin
-from django.urls import path
 from rest_framework.routers import DefaultRouter
 from core import views
 from django.urls import path, include
 from core.views import Login, ProfileViewSet, \
     LogoutView, ProfileSearchListView, ResetPassword, \
     CategoryViewSet, SubCategoryViewSet, ChildSubCategoryViewSet, \
-    GoogleSignViewSet, VerifyEmail, ForgotPassword, SendVerificationEmail, SearchFilters, PublicationView
+    GoogleSignViewSet, VerifyEmail, SendVerificationEmail
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -56,9 +53,6 @@ urlpatterns = [
     path('forgot-password/', views.ForgotPassword.as_view({
         "post": "get_email"
     }), name="forgot_password"),
-    path('searchFilter/', views.SearchFilters.as_view({
-        "post": "list"
-    }), name="search_filters"),
     path('add-publication/', views.PublicationView.as_view({
         "post": "create"
     }), name="add_publication"),

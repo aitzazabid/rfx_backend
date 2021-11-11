@@ -4,6 +4,8 @@ from rest_framework import status
 from django.urls import reverse
 from core.models import UserProfile
 import json
+from datetime import timedelta
+from django.utils import timezone
 
 
 # Create your tests here.
@@ -15,7 +17,7 @@ class RegistrationTestCase(APITestCase):
             'email':'testuser12@gmail.com',
             'password': 'secret',
             'first_name':'ali1',
-            'last_name':'usman'
+            'last_name':'usman',
         }
         self.u1 = User.objects.create_user(**self.credentials)
         self.u2 = UserProfile.objects.create(user=self.u1)
@@ -39,12 +41,14 @@ class RegistrationTestCase(APITestCase):
             "company_contact": "companY_con1",
             "sales_dept_email": "sales1",
             "sales_dept_contact": "sales2",
-            "license_no": "CHR123"
+            "license_no": "CHR123",
+            "expires_in": timezone.now() + timedelta(days=3)
         }
         response = self.client.post("/signup", data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_login(self):
+        import pdb; pdb.set_trace()
         response = self.client.post("/login/", self.credentials)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -57,3 +61,4 @@ class RegistrationTestCase(APITestCase):
         field_value = self.u1.id
         response = self.client.put(reverse('profile_update', kwargs={'pk': field_value}),data=json.dumps(self.valid_post),content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+

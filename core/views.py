@@ -1,7 +1,7 @@
 # Create your views here.
 
 from rest_framework import viewsets, status, generics
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -10,7 +10,8 @@ from core.models import UserProfile, Category, Subcategory, ChildSubcategory, Pu
 from core.serializers import ProfileSerializer, \
     UserSerializer, SearchProfileSerializer, \
     ResetPasswordSerializer, CategorySerializer, \
-    SubCategorySerializer, CategorySubcategorySerializer, ChildSubCategorySerializer, PublicationSerializer, SaveSupplierSerializer
+    SubCategorySerializer, CategorySubcategorySerializer, ChildSubCategorySerializer, PublicationSerializer, \
+    SaveSupplierSerializer
 from django.contrib.auth.models import User
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
@@ -18,16 +19,13 @@ from rest_framework.decorators import action
 from random import randint
 from datetime import timedelta
 from django.utils import timezone
-from django.core.mail import send_mail, EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from rfx_backend.settings import DEFAULT_FROM_EMAIL
 from rest_fuzzysearch import search, sort
 from core.utils import send_verification_email, allow_user_login
 from django.shortcuts import redirect
 from core import constants
-from django.urls import resolve
-from django.contrib.sites.models import Site
-from django.contrib.sites.shortcuts import get_current_site
 
 REST_ERROR_CODE = "rest_error"
 VERIFICATION_REQUIRED = 1
@@ -37,27 +35,32 @@ class Login(ObtainAuthToken):
 
     def post(self, request, *args, **kwargs):
         user = User.objects.filter(username=request.data["email"]).first()
-        allow_login = allow_user_login(user)
-        if allow_login:
-            if user.check_password(request.data["password"]):
-                token, created = Token.objects.get_or_create(user=user)
-                response = ProfileSerializer(user.profile, context={'request': request}).data
-                user.profile.check_login_attempt += 1
-                user.profile.save()
-                response["first_name"] = user.first_name
-                response["last_name"] = user.last_name
-                response["email"] = user.email
-                response["token"] = token.key
-                response["success"] = True
-                response["login_attempt"] = user.profile.check_login_attempt
+        if user:
+            allow_login = allow_user_login(user)
+            if allow_login:
+                if user.check_password(request.data["password"]):
+                    token, created = Token.objects.get_or_create(user=user)
+                    response = ProfileSerializer(user.profile, context={'request': request}).data
+                    user.profile.check_login_attempt += 1
+                    user.profile.save()
+                    response["first_name"] = user.first_name
+                    response["last_name"] = user.last_name
+                    response["email"] = user.email
+                    response["token"] = token.key
+                    response["success"] = True
+                    response["login_attempt"] = user.profile.check_login_attempt
 
-                return Response(response)
-
-            else:
-                return Response({
-                    "success": False,
-                    "message": "user does not exists"
-                })
+                    return Response(response)
+                else:
+                    return Response({
+                        "success": False,
+                        "message": "user does not exists"
+                    })
+            return Response({
+                "success": False,
+                "message": "user does not exists",
+                REST_ERROR_CODE: VERIFICATION_REQUIRED
+            })
         else:
             return Response({
                 "success": False,
@@ -177,23 +180,28 @@ class SendVerificationEmail(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = ProfileSerializer
 
-    # permission_classes = [IsAuthenticated]
-
     def create(self, request):
         email = request.data.get("email", None)
         user = User.objects.filter(email=email).first()
 
-        to_email = user.email
-        name = user.first_name
-        value = randint(100000, 999999)
-        user.profile.email_verification_key = value
-        user.profile.save()
-        print("value", value)
-        send_verification_email(to_email, value, name)
-        return Response({
-            "success": True,
-            "message": "verification email sent"
-        })
+        if user:
+            to_email = user.email
+            name = user.first_name
+            value = randint(100000, 999999)
+            user.profile.email_verification_key = value
+            user.profile.save()
+            print("value", value)
+            send_verification_email(to_email, value, name)
+            return Response({
+                "success": True,
+                "message": "verification email sent"
+            })
+        else:
+            return Response({
+                "success": False,
+                "message": "user does not exists",
+                REST_ERROR_CODE: VERIFICATION_REQUIRED
+            })
 
 
 class ProfileSearchListView(viewsets.ModelViewSet):
@@ -315,7 +323,6 @@ class GoogleSignViewSet(viewsets.ModelViewSet):
 
 
 class VerifyEmail(viewsets.ModelViewSet):
-    # authentication_classes = (TokenAuthentication,)
 
     def get_user_data(self, request):
         token = request.GET['token']
@@ -407,37 +414,6 @@ class FuzzySearchView(sort.SortedModelMixin, search.SearchableModelMixin, viewse
         return user
 
 
-class SearchFilters(viewsets.ModelViewSet):
-    queryset = UserProfile.objects.all()
-    serializer_class = ProfileSerializer
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-
-    def get_queryset(self):
-        data = self.request.data
-        user = UserProfile.objects.all()
-        if data.get('location'):
-            user = user.filter(location__in=data.get('location'))
-        if data.get('company_type'):
-            user = user.filter(company_type__in=data['company_type'])
-
-        if data.get('no_employee_from') and data.get('no_employee_to'):
-            user = user.filter(total_employees__gte=data['no_employee_from'],
-                               total_employees__lte=data['no_employee_to'])
-        elif data.get('no_employee_from'):
-            user = user.filter(total_employees__gte=data['no_employee_from'])
-        elif data.get('no_employee_to'):
-            user = user.filter(total_employees__lte=data['no_employee_to'])
-
-        if data.get('revenue_from') and data.get('revenue_to'):
-            user = user.filter(annual_revenue__gte=data['revenue_from'], annual_revenue__lte=data['revenue_to'])
-        elif data.get('revenue_from'):
-            user = user.filter(annual_revenue__gte=data['revenue_from'])
-        elif data.get('revenue_to'):
-            user = user.filter(annual_revenue__lte=data['revenue_to'])
-
-        return user
-
-
 class PublicationView(viewsets.ModelViewSet):
     queryset = Publication.objects.all()
     serializer_class = PublicationSerializer
@@ -463,7 +439,7 @@ class SaveSupplierView(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         following, created = FollowSupplier.objects.get_or_create(user_id=request.user.id,
-                                                                  following_user_id= request.data['id'])
+                                                                  following_user_id=request.data['id'])
         if created:
             return Response({
                 "success": True,
@@ -479,7 +455,7 @@ class SaveSupplierView(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         user = request.user
-        following = FollowSupplier.objects.filter(user=user).values_list("following_user",flat=True).distinct()
+        following = FollowSupplier.objects.filter(user=user).values_list("following_user", flat=True).distinct()
         response = dict()
         response["success"] = True
         response["data"] = []
@@ -490,4 +466,3 @@ class SaveSupplierView(viewsets.ModelViewSet):
             response["data"] = serializer.data
             return Response(response)
         return Response(response)
-
