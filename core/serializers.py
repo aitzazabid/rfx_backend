@@ -7,6 +7,14 @@ class ProfileSerializer(serializers.ModelSerializer):
     first_name = serializers.SerializerMethodField()
     last_name = serializers.SerializerMethodField()
     email = serializers.SerializerMethodField()
+    is_saved = serializers.SerializerMethodField(read_only=True)
+
+    def get_is_saved(self, obj):
+        user = self.context['request'].user
+        if not user.is_anonymous:
+            if FollowSupplier.objects.filter(user_id=user.id, following_user_id=obj.id).exists():
+                return True
+            return False
 
     def get_first_name(self, obj):
         return obj.user.first_name

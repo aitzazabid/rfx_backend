@@ -410,7 +410,7 @@ class FuzzySearchView(sort.SortedModelMixin, search.SearchableModelMixin, viewse
             user = user.filter(annual_revenue__gte=data['revenue_from'])
         elif data.get('revenue_to'):
             user = user.filter(annual_revenue__lte=data['revenue_to'])
-
+        self.get_serializer(context={'request': user})
         return user
 
 
