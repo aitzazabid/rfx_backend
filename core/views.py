@@ -54,7 +54,7 @@ class Login(ObtainAuthToken):
                 else:
                     return Response({
                         "success": False,
-                        "message": "user does not exists"
+                        "message": "The password that you've entered is incorrect"
                     })
             return Response({
                 "success": False,
@@ -64,8 +64,7 @@ class Login(ObtainAuthToken):
         else:
             return Response({
                 "success": False,
-                "message": "user does not exists",
-                REST_ERROR_CODE: VERIFICATION_REQUIRED
+                "message": "user does not exists"
             })
 
 
