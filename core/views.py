@@ -438,7 +438,7 @@ class SaveSupplierView(viewsets.ModelViewSet):
     serializer_class = SaveSupplierSerializer
 
     def create(self, request, *args, **kwargs):
-        check_save_supplier_user = FollowSupplier.objects.filter(user_id=request.user.id)
+        check_save_supplier_user = UserProfile.objects.filter(user_id = request.data['id'])
         if check_save_supplier_user:
             following, created = FollowSupplier.objects.get_or_create(user_id=request.user.id, following_user_id=request.data['id'])
             if created:
