@@ -67,6 +67,7 @@ class UserProfile(models.Model):
     expires_in = models.DateTimeField(null=True, blank=True)
 
     forgot_password = models.TextField(null=True, blank=True)
+    bio = models.TextField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
