@@ -112,7 +112,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 response["first_name"] = user.first_name
                 response["last_name"] = user.last_name
                 response["email"] = user.email
-                response["user"] = user.first_name
+                response["user"] = user.id
                 token, created = Token.objects.get_or_create(user=user)
                 response["token"] = token.key
                 response["login_attempt"] = 0
@@ -438,20 +438,26 @@ class SaveSupplierView(viewsets.ModelViewSet):
     serializer_class = SaveSupplierSerializer
 
     def create(self, request, *args, **kwargs):
-        following, created = FollowSupplier.objects.get_or_create(user_id=request.user.id,
-                                                                  following_user_id=request.data['id'])
-        if created:
+        check_save_supplier_user = FollowSupplier.objects.filter(user_id=request.user.id)
+        if check_save_supplier_user:
+            following, created = FollowSupplier.objects.get_or_create(user_id=request.user.id, following_user_id=request.data['id'])
+            if created:
+                return Response({
+                    "success": True,
+                    "message": "supplier saved"
+                })
+            elif following:
+                FollowSupplier.objects.filter(user_id=request.user.id,
+                                              following_user=request.data['id']).delete()
             return Response({
                 "success": True,
-                "message": "supplier saved"
+                "message": "supplier remove from the save list"
             })
         else:
-            FollowSupplier.objects.filter(user_id=request.user.id,
-                                          following_user=request.data['id']).delete()
-        return Response({
-            "success": True,
-            "message": "supper remove from the save list"
-        })
+            return Response({
+                "success": False,
+                "message": "save supplier does not exist"
+            })
 
     def list(self, request, *args, **kwargs):
         user = request.user

@@ -12,7 +12,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     def get_is_saved(self, obj):
         user = self.context['request'].user
         if not user.is_anonymous:
-            if FollowSupplier.objects.filter(user_id=user.id, following_user_id=obj.id).exists():
+            if FollowSupplier.objects.filter(user_id=user.id, following_user_id=obj.user.id).exists():
                 return True
             return False
 
