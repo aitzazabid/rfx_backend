@@ -8,6 +8,13 @@ COMPANY_SIZE = (
     ('small', 'SMALL'),
 )
 
+WORK_FIELD = (
+    ('real estate', 'Real Estate'),
+    ('clothing', 'Clothing'),
+    ('construction', 'Construction'),
+    ('Installation, repair and maintenance', 'Installation, repair and maintenance'),
+)
+
 
 def productFile(instance, filename):
     return '/'.join(['products', str(instance.id), filename])
@@ -68,6 +75,8 @@ class UserProfile(models.Model):
 
     forgot_password = models.TextField(null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
+
+    field_of_work = models.CharField(max_length=256, choices=WORK_FIELD, null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
