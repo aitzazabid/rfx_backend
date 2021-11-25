@@ -6,12 +6,13 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from core.models import UserProfile, Category, Subcategory, ChildSubcategory, Publication, FollowSupplier
+from core.models import UserProfile, Category, Subcategory, ChildSubcategory, Publication, FollowSupplier, AddProducts, \
+    MultipleImages
 from core.serializers import ProfileSerializer, \
     UserSerializer, SearchProfileSerializer, \
     ResetPasswordSerializer, CategorySerializer, \
     SubCategorySerializer, CategorySubcategorySerializer, ChildSubCategorySerializer, PublicationSerializer, \
-    SaveSupplierSerializer
+    SaveSupplierSerializer, ProductSerializer, MultiImageSerializer
 from django.contrib.auth.models import User
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
@@ -148,7 +149,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
 class UpdateProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
         if not allow_user_login(request.user):
@@ -419,7 +419,9 @@ class PublicationView(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         user = request.user
+        request.data._mutable = True
         request.data['user'] = user.id
+        request.data._mutable = False
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -437,9 +439,10 @@ class SaveSupplierView(viewsets.ModelViewSet):
     serializer_class = SaveSupplierSerializer
 
     def create(self, request, *args, **kwargs):
-        check_save_supplier_user = UserProfile.objects.filter(user_id = request.data['id'])
+        check_save_supplier_user = UserProfile.objects.filter(user_id=request.data['id'])
         if check_save_supplier_user:
-            following, created = FollowSupplier.objects.get_or_create(user_id=request.user.id, following_user_id=request.data['id'])
+            following, created = FollowSupplier.objects.get_or_create(user_id=request.user.id,
+                                                                      following_user_id=request.data['id'])
             if created:
                 return Response({
                     "success": True,
@@ -471,3 +474,33 @@ class SaveSupplierView(viewsets.ModelViewSet):
             response["data"] = serializer.data
             return Response(response)
         return Response(response)
+
+
+class AddProductView(viewsets.ModelViewSet):
+    queryset = AddProducts.objects.all()
+    serializer_class = ProductSerializer
+
+    def create(self, request, *args, **kwargs):
+        request.data._mutable = True
+        request.data['user'] = request.user.id
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            images = dict((request.data).lists())['image']
+            image = []
+            if len(images) <= 4:
+                serializer.save()
+                for img_name in images:
+                    modified_data = {"product": serializer.data['id'], "image": img_name}
+                    file_serializer = MultiImageSerializer(data=modified_data)
+                    if file_serializer.is_valid():
+                        file_serializer.save()
+                        image.append(file_serializer.data)
+            else:
+                return Response({
+                    "success": False,
+                    "message": "user can upload maximum 4 files",
+                })
+            data = dict(serializer.data)
+            data['image'] = image
+            return Response(data)
+        return Response(serializer._errors)

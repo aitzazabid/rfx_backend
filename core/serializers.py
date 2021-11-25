@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from core.models import UserProfile, Category, Subcategory, ChildSubcategory, Publication, FollowSupplier
+from core.models import UserProfile, Category, Subcategory, ChildSubcategory, Publication, FollowSupplier, \
+    AddProducts, MultipleImages
 from django.contrib.auth.models import User
 
 
@@ -104,4 +105,18 @@ class PublicationSerializer(serializers.ModelSerializer):
 class SaveSupplierSerializer(serializers.ModelSerializer):
     class Meta:
         model = FollowSupplier
+        fields = "__all__"
+
+
+class MultiImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MultipleImages
+        fields = ("image", "product",)
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    image = MultiImageSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = AddProducts
         fields = "__all__"

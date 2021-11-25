@@ -24,6 +24,10 @@ def PublicationFile(instance, filename):
     return '/'.join(['publications', str(instance.id), filename])
 
 
+def ProductImages(instance, filename):
+    return '/'.join(['productImages', str(instance.id), filename])
+
+
 class Publication(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     name_of_publication = models.CharField(max_length=256, default=0)
@@ -32,7 +36,8 @@ class Publication(models.Model):
 
 class FollowSupplier(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='usersupplier')
-    following_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='followsupplier')
+    following_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True,
+                                       related_name='followsupplier')
 
 
 class Category(models.Model):
@@ -92,3 +97,18 @@ class ChildSubcategory(models.Model):
     category = models.ForeignKey(Subcategory, related_name="child_category", on_delete=models.CASCADE)
     name = models.CharField(max_length=256)
     description = models.TextField()
+
+
+class AddProducts(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    ProductName = models.CharField(max_length=256, null=True, blank=True)
+    sku = models.CharField(max_length=256, null=True, blank=True)
+    design = models.CharField(max_length=256, null=True, blank=True)
+    production = models.CharField(max_length=256, null=True, blank=True)
+    budget = models.CharField(max_length=256, null=True, blank=True)
+    description = models.CharField(max_length=256, null=True, blank=True)
+
+
+class MultipleImages(models.Model):
+    product = models.ForeignKey(AddProducts, on_delete=models.CASCADE, null=True, blank=True, related_name="image")
+    image = models.ImageField(upload_to=ProductImages, blank=True, null=True)

@@ -33,6 +33,7 @@ router.register(r'category', CategoryViewSet)
 router.register(r'subcategory', SubCategoryViewSet)
 router.register(r'child_subcategory', ChildSubCategoryViewSet)
 router.register(r'fuzzysearch', views.FuzzySearchView)
+router.register(r'add_product', views.AddProductView)
 
 urlpatterns = router.urls
 
@@ -59,6 +60,9 @@ urlpatterns = [
     path('get-publication/', views.PublicationView.as_view({
         "get": "list"
     }), name="get_publication"),
+    # path('addproduct/', views.AddProductView.as_view({
+    #     "post": "create"
+    # }), name="add_product"),
     path('save-supplier/', views.SaveSupplierView.as_view({
         "post": "create", "get": "list"
     }), name="save_supplier"),
