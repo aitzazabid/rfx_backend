@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from core.models import UserProfile, Category, Subcategory, ChildSubcategory, Publication, FollowSupplier, \
-    AddProducts, MultipleImages
+    AddProducts, MultipleImages, SocialLinks, AddServices
 from django.contrib.auth.models import User
 
 
@@ -119,4 +119,25 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AddProducts
+        fields = "__all__"
+
+
+class SocialLInksSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SocialLinks
+        fields = "__all__"
+
+
+class AddServicesSerializer(serializers.ModelSerializer):
+    skills = serializers.SerializerMethodField(read_only=True)
+
+    def get_skills(self, obj):
+        if obj.list_skills is not None:
+            list = obj.list_skills.split(",")
+        else:
+            list = obj.list_skills
+        return list
+
+    class Meta:
+        model = AddServices
         fields = "__all__"

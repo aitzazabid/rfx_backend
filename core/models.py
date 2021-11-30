@@ -112,3 +112,17 @@ class AddProducts(models.Model):
 class MultipleImages(models.Model):
     product = models.ForeignKey(AddProducts, on_delete=models.CASCADE, null=True, blank=True, related_name="image")
     image = models.ImageField(upload_to=ProductImages, blank=True, null=True)
+
+
+class SocialLinks(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    linkdin_link = models.CharField(max_length=256, blank=True, null=True)
+    facebook_link = models.CharField(max_length=256, blank=True, null=True)
+    instagram_link = models.CharField(max_length=256, blank=True, null=True)
+
+
+class AddServices(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    service_name = models.CharField(max_length=256, default="")
+    list_skills = models.TextField(null=True, blank=True)
+

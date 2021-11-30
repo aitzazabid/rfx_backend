@@ -1,4 +1,6 @@
 # Create your views here.
+from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import PageNumberPagination
 
 from rest_framework import viewsets, status, generics
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
@@ -7,12 +9,12 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from core.models import UserProfile, Category, Subcategory, ChildSubcategory, Publication, FollowSupplier, AddProducts, \
-    MultipleImages
+    MultipleImages, SocialLinks, AddServices
 from core.serializers import ProfileSerializer, \
     UserSerializer, SearchProfileSerializer, \
     ResetPasswordSerializer, CategorySerializer, \
     SubCategorySerializer, CategorySubcategorySerializer, ChildSubCategorySerializer, PublicationSerializer, \
-    SaveSupplierSerializer, ProductSerializer, MultiImageSerializer
+    SaveSupplierSerializer, ProductSerializer, MultiImageSerializer, SocialLInksSerializer, AddServicesSerializer
 from django.contrib.auth.models import User
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
@@ -377,13 +379,13 @@ class ForgotPassword(viewsets.ModelViewSet):
 
 
 class FuzzySearchView(sort.SortedModelMixin, search.SearchableModelMixin, viewsets.ReadOnlyModelViewSet):
-    lookup_fields = ('company_name', 'company_brand', 'category')
+    lookup_fields = ('company_name', 'company_brand', 'category', 'field_of_work')
     lookup_value_regex = '[^/]+'
     queryset = UserProfile.objects.all()
     serializer_class = ProfileSerializer
 
     filter_backends = (search.RankedFuzzySearchFilter, sort.OrderingFilter)
-    search_fields = ('company_name', 'company_brand', 'category')
+    search_fields = ('company_name', 'company_brand', 'category', 'field_of_work')
     ordering = ('-rank',)
 
     min_rank = 0.1
@@ -476,9 +478,16 @@ class SaveSupplierView(viewsets.ModelViewSet):
         return Response(response)
 
 
-class AddProductView(viewsets.ModelViewSet):
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 10
+
+
+class AddProductView(viewsets.ModelViewSet, LimitOffsetPagination):
     queryset = AddProducts.objects.all()
     serializer_class = ProductSerializer
+    pagination_class = StandardResultsSetPagination
 
     def create(self, request, *args, **kwargs):
         request.data._mutable = True
@@ -504,3 +513,50 @@ class AddProductView(viewsets.ModelViewSet):
             data['image'] = image
             return Response(data)
         return Response(serializer._errors)
+
+
+class GetSpecificProd(viewsets.ModelViewSet):
+    queryset = AddProducts.objects.all()
+    serializer_class = ProductSerializer
+
+    def list(self, request, *args, **kwargs):
+        data = self.request.GET
+        prod_id = data.get('id')
+        if prod_id:
+            get_data = self.queryset.filter(id=prod_id)
+            return Response(self.get_serializer(get_data, many=True).data)
+        else:
+            return Response({
+                "success": False,
+                "message": "product id not found",
+            })
+
+
+class AddSocialLinksView(viewsets.ModelViewSet):
+    queryset = SocialLinks.objects.all()
+    serializer_class = SocialLInksSerializer
+
+    def create(self, request, *args, **kwargs):
+        request.data['user'] = request.user.id
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+
+class AddServiesView(viewsets.ModelViewSet):
+    queryset = AddServices.objects.all()
+    serializer_class = AddServicesSerializer
+
+    def create(self, request, *args, **kwargs):
+        request.data._mutable = True
+        request.data['user'] = request.user.id
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response({
+                "success": False,
+                "message": "failed",
+            })
