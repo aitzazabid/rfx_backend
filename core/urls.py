@@ -34,7 +34,7 @@ router.register(r'subcategory', SubCategoryViewSet)
 router.register(r'child_subcategory', ChildSubCategoryViewSet)
 router.register(r'fuzzysearch', views.FuzzySearchView)
 router.register(r'add_product', views.AddProductView)
-router.register(r'add_links', views.AddSocialLinksView)
+# router.register(r'add_links', views.AddSocialLinksView)
 router.register(r'add_service', views.AddServiesView)
 
 urlpatterns = router.urls
@@ -68,6 +68,15 @@ urlpatterns = [
     path('get_prod_data/', views.GetSpecificProd.as_view({
         "get": "list"
     }), name="get-prod-data"),
+    path('add_links/', views.AddSocialLinksView.as_view({
+        "post": "create"
+    }), name="add-links"),
+    path('get_links/', views.AddSocialLinksView.as_view({
+        "get": "list"
+    }), name="get-links"),
+    path('update_links/<str:pk>/', views.AddSocialLinksView.as_view({
+        "put": "update"
+    }), name="update-links"),
 ]
 urlpatterns += router.urls
 

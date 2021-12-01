@@ -379,13 +379,13 @@ class ForgotPassword(viewsets.ModelViewSet):
 
 
 class FuzzySearchView(sort.SortedModelMixin, search.SearchableModelMixin, viewsets.ReadOnlyModelViewSet):
-    lookup_fields = ('company_name', 'company_brand', 'category', 'field_of_work')
+    lookup_fields = ('company_name', 'company_brand', 'category')
     lookup_value_regex = '[^/]+'
     queryset = UserProfile.objects.all()
     serializer_class = ProfileSerializer
 
     filter_backends = (search.RankedFuzzySearchFilter, sort.OrderingFilter)
-    search_fields = ('company_name', 'company_brand', 'category', 'field_of_work')
+    search_fields = ('company_name', 'company_brand', 'category')
     ordering = ('-rank',)
 
     min_rank = 0.1
@@ -411,6 +411,8 @@ class FuzzySearchView(sort.SortedModelMixin, search.SearchableModelMixin, viewse
             user = user.filter(annual_revenue__gte=data['revenue_from'])
         elif data.get('revenue_to'):
             user = user.filter(annual_revenue__lte=data['revenue_to'])
+        elif data.get('field_of_work'):
+            user = user.filter(field_of_work=data['field_of_work'])
         self.get_serializer(context={'request': user})
         return user
 
@@ -542,11 +544,60 @@ class AddSocialLinksView(viewsets.ModelViewSet):
     serializer_class = SocialLInksSerializer
 
     def create(self, request, *args, **kwargs):
-        request.data['user'] = request.user.id
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+        id_1 = request.user.id
+        user1 = UserProfile.objects.filter(user=id_1)
+        if user1:
+            user2 = SocialLinks.objects.filter(user=id_1)
+            if user2:
+                return Response({
+                    "success": False,
+                    "message": "user already added links",
+                })
+            else:
+                request.data['user'] = request.user.id
+                serializer = self.get_serializer(data=request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data)
+        else:
+            return Response({
+                "success": False,
+                "message": "user does not exist",
+            })
+
+    def list(self, request, *args, **kwargs):
+        id_1 = request.user.id
+        user = SocialLinks.objects.filter(user=id_1)
+        if user:
+            return Response(self.get_serializer(user, many=True).data)
+        else:
+            return Response({
+                "success": False,
+                "message": "user not found",
+            })
+
+    def update(self, request, *args, **kwargs):
+        user_id1 = request.user.id
+        user_check = UserProfile.objects.filter(user_id=user_id1)
+        if user_check:
+            user2 = SocialLinks.objects.filter(user=user_id1)
+            if user2:
+                partial = True
+                instance = self.get_object()
+                serializer = self.get_serializer(instance, data=request.data, partial=partial)
+                if serializer.is_valid():
+                    self.perform_update(serializer)
+                return Response(serializer.data)
+            else:
+                return Response({
+                    "success": False,
+                    "message": "User does not exist"
+                })
+        else:
+            return Response({
+                "success": False,
+                "message": "User does not exist"
+            })
 
 
 class AddServiesView(viewsets.ModelViewSet):
