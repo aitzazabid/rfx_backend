@@ -489,6 +489,11 @@ class AddProductView(viewsets.ModelViewSet, LimitOffsetPagination):
     serializer_class = ProductSerializer
     pagination_class = StandardResultsSetPagination
 
+    def get_queryset(self):
+        if not self.request.user.is_anonymous:
+            return AddProducts.objects.filter(user_id=self.request.user.id)
+        return AddProducts.objects.all()
+
     def create(self, request, *args, **kwargs):
         request.data._mutable = True
         request.data['user'] = request.user.id
