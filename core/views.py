@@ -521,6 +521,17 @@ class AddProductView(viewsets.ModelViewSet, LimitOffsetPagination):
             return Response(data)
         return Response(serializer._errors)
 
+    def list(self, request, *args, **kwargs):
+        id = kwargs["pk"]
+        user = AddProducts.objects.filter(user=id)
+        if user:
+            return Response(self.get_serializer(user, many=True).data)
+        else:
+            return Response({
+                "success": False,
+                "message": "user has no products",
+            })
+
 
 class GetSpecificProd(viewsets.ModelViewSet):
     queryset = AddProducts.objects.all()
@@ -566,7 +577,7 @@ class AddSocialLinksView(viewsets.ModelViewSet):
             })
 
     def list(self, request, *args, **kwargs):
-        id_1 = request.user.id
+        id_1 = kwargs["pk"]
         user = SocialLinks.objects.filter(user=id_1)
         if user:
             return Response(self.get_serializer(user, many=True).data)
@@ -600,19 +611,104 @@ class AddSocialLinksView(viewsets.ModelViewSet):
             })
 
 
-class AddServiesView(viewsets.ModelViewSet):
+class AddServciesView(viewsets.ModelViewSet):
     queryset = AddServices.objects.all()
     serializer_class = AddServicesSerializer
 
     def create(self, request, *args, **kwargs):
-        request.data._mutable = True
-        request.data['user'] = request.user.id
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+        user_id = request.user.id
+        isUser = UserProfile.objects.filter(user=user_id)
+        if isUser:
+            isUserAlready = AddServices.objects.filter(user=user_id)
+            if isUserAlready:
+                return Response({
+                    "success": False,
+                    "message": "user already added services",
+                })
+            else:
+                request.data['user'] = request.user.id
+                serializer = self.get_serializer(data=request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data)
+                else:
+                    return Response({
+                        "success": False,
+                        "message": "failed",
+                    })
         else:
             return Response({
                 "success": False,
-                "message": "failed",
+                "message": "user does not exist",
+            })
+
+    def update(self, request, *args, **kwargs):
+        user_id1 = request.user.id
+        user_check = UserProfile.objects.filter(user_id=user_id1)
+        if user_check:
+            user2 = AddServices.objects.filter(user=user_id1)
+            if user2:
+                partial = True
+                instance = self.get_object()
+                data1 = AddServices.objects.get(id=instance.id)
+                request.data['list_skills'] += "," + data1.list_skills
+                serializer = self.get_serializer(instance, data=request.data, partial=partial)
+                if serializer.is_valid():
+                    serializer.save()
+                    self.perform_update(serializer)
+                    return Response(serializer.data)
+                else:
+                    return Response(serializer._errors)
+            else:
+                return Response({
+                    "success": False,
+                    "message": "User does not exist"
+                })
+        else:
+            return Response({
+                "success": False,
+                "message": "User does not exist"
+            })
+
+    def destroy(self, request, *args, **kwargs):
+        user_id1 = request.user.id
+        user_check = UserProfile.objects.filter(user_id=user_id1)
+        if user_check:
+            user2 = AddServices.objects.filter(user=user_id1)
+            if user2:
+                data1 = AddServices.objects.get(id=kwargs["pk"],
+                                                service_name=request.data["service_name"])
+                ex_list = data1.list_skills
+                re_list = request.data["list_skills"]
+                listt = re_list.split(",")
+                for skill in listt:
+                    dd = str(skill) + ","
+                    ex_list = ex_list.replace(dd, "")
+
+                data1.list_skills = ex_list
+                data1.save()
+                return Response({
+                    "success": True,
+                    "message": "Given data deleted"
+                })
+            else:
+                return Response({
+                    "success": False,
+                    "message": "User does not exist"
+                })
+        else:
+            return Response({
+                "success": False,
+                "message": "User does not exist"
+            })
+
+    def list(self, request, *args, **kwargs):
+        id = kwargs["pk"]
+        user = AddServices.objects.filter(user=id)
+        if user:
+            return Response(self.get_serializer(user, many=True).data)
+        else:
+            return Response({
+                "success": False,
+                "message": "user has no products",
             })

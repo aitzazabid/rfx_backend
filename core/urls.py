@@ -34,8 +34,7 @@ router.register(r'subcategory', SubCategoryViewSet)
 router.register(r'child_subcategory', ChildSubCategoryViewSet)
 router.register(r'fuzzysearch', views.FuzzySearchView)
 router.register(r'add_product', views.AddProductView)
-# router.register(r'add_links', views.AddSocialLinksView)
-router.register(r'add_service', views.AddServiesView)
+router.register(r'add_service', views.AddServciesView)
 
 urlpatterns = router.urls
 
@@ -71,12 +70,27 @@ urlpatterns = [
     path('add_links/', views.AddSocialLinksView.as_view({
         "post": "create"
     }), name="add-links"),
-    path('get_links/', views.AddSocialLinksView.as_view({
+    path('get_links/<str:pk>/', views.AddSocialLinksView.as_view({
         "get": "list"
     }), name="get-links"),
     path('update_links/<str:pk>/', views.AddSocialLinksView.as_view({
         "put": "update"
     }), name="update-links"),
+    path('add_service/', views.AddServciesView.as_view({
+        "post": "create"
+    }), name="add-services"),
+    path('get_service/<str:pk>/', views.AddServciesView.as_view({
+        "get": "list"
+    }), name="get-services"),
+    path('get_product/<str:pk>/', views.AddProductView.as_view({
+        "get": "list"
+    }), name="get-product"),
+    path('update_service/<str:pk>/', views.AddServciesView.as_view({
+        "put": "update"
+    }), name="update-services"),
+    path('delete_service/<str:pk>/', views.AddServciesView.as_view({
+        "delete": "destroy"
+    }), name="update-services"),
 ]
 urlpatterns += router.urls
 
