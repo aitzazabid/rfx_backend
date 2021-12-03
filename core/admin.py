@@ -1,6 +1,6 @@
 from django.contrib import admin
 from core.models import UserProfile, Publication, FollowSupplier, AddProducts, MultipleImages, SocialLinks,  \
-    AddServices
+    AddServices, Category
 
 admin.site.register(UserProfile)
 admin.site.register(Publication)
@@ -15,3 +15,4 @@ class MultipleImagesAdmin(admin.ModelAdmin):
 admin.site.register(MultipleImages, MultipleImagesAdmin)
 admin.site.register(SocialLinks)
 admin.site.register(AddServices)
+admin.site.register(Category)

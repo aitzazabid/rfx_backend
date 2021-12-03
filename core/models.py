@@ -72,6 +72,7 @@ class UserProfile(models.Model):
     google_id = models.TextField(null=True, blank=True)
     image_url = models.TextField(null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, null=True, blank=True)
+    category_name = models.CharField(max_length=256, null=True, blank=True)
 
     check_login_attempt = models.IntegerField(default=0, blank=True, null=True)
     email_verification_key = models.TextField(null=True, blank=True)
@@ -125,4 +126,3 @@ class AddServices(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     service_name = models.CharField(max_length=256, default="")
     list_skills = models.TextField(null=True, blank=True)
-
