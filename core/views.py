@@ -93,11 +93,21 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     "This field is required"
                 ]
             }})
+
+        check_user_category = Category.objects.filter(id=request.data.get('category'))
+        data = request.data
+        if request.data.get('category'):
+            if check_user_category:
+                data["category_name"] = check_user_category.get().name
+            else:
+                return Response({
+                    "success": False,
+                    "message": "category id is not correct"
+                })
         user_data = request.data
         user_data["username"] = request.data["email"]
         user = UserSerializer(data=user_data)
         if user.is_valid():
-            check_user_category = Category.objects.filter(id=request.data.get('category'))
             user = user.save()
             user.set_password(request.data["password"])
             user.save()
@@ -107,8 +117,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
             data["first_name"] = user.first_name
             data["last_name"] = user.last_name
             data["check_login_attempt"] = 0
-            if check_user_category:
-                data["category_name"] = check_user_category.get().name
             profile = self.get_serializer(data=data)
             if profile.is_valid():
                 profile.save()
@@ -123,11 +131,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
                 return Response(response)
             return Response({"success": False, "error": profile._errors})
-            # else:
-            #     return Response({
-            #         "success": True,
-            #         "message": "this category id not exists"
-            #     })
         return Response({"success": False, "error": user._errors})
 
     def update(self, request, *args, **kwargs):
