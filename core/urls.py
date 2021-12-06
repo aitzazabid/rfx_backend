@@ -85,6 +85,18 @@ urlpatterns = [
     path('get_product/<str:pk>/', views.AddProductView.as_view({
         "get": "list"
     }), name="get-product"),
+    path('update_product/<str:pk>/', views.AddProductView.as_view({
+        "put": "update"
+    }), name="update-product"),
+    path('delete_product_images/<str:pk>/', views.AddProductView.as_view({
+        "delete": "delete_image"
+    }), name="delete-product-images"),
+    path('update_product_images/<str:pk>/', views.AddProductView.as_view({
+        "put": "update_images"
+    }), name="update-product-images"),
+    path('delete_product/<str:pk>/', views.AddProductView.as_view({
+        "delete": "destroy"
+    }), name="delete-product"),
     path('update_service/<str:pk>/', views.AddServciesView.as_view({
         "put": "update"
     }), name="update-services"),

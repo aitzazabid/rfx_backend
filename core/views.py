@@ -405,6 +405,8 @@ class FuzzySearchView(sort.SortedModelMixin, search.SearchableModelMixin, viewse
         user = super(FuzzySearchView, self).get_queryset()
         if data.get('location'):
             user = user.filter(location__in=data.get('location').split(","))
+        if data.get('category'):
+            user = user.filter(category_name__in=data.get('category').split(","))
         if data.get('company_type'):
             user = user.filter(company_type__in=data['company_type'].split(","))
         if data.get('no_employee_from') and data.get('no_employee_to'):
@@ -547,6 +549,116 @@ class AddProductView(viewsets.ModelViewSet, LimitOffsetPagination):
                 "success": False,
                 "message": "user has no products",
             })
+
+    def update(self, request, *args, **kwargs):
+        user_id1 = request.user.id
+        check_user = UserProfile.objects.filter(user_id=user_id1)
+        if check_user:
+            check_user_in_product = AddProducts.objects.filter(user_id=user_id1)
+            if check_user_in_product:
+                partial = True
+                instance = self.get_object()
+                serializer = self.get_serializer(instance, data=request.data, partial=partial)
+                if serializer.is_valid():
+                    self.perform_update(serializer)
+                return Response(serializer.data)
+            return Response({
+                "success": False,
+                "message": "User has no products"
+            })
+        return Response({
+            "success": False,
+            "message": "User does not exists"
+        })
+
+    def delete_image(self, request, *args, **kwargs):
+        user_id1 = request.user.id
+        check_user = UserProfile.objects.filter(user_id=user_id1)
+        if check_user:
+            check_user_in_product = AddProducts.objects.filter(user_id=user_id1)
+            if check_user_in_product:
+                del_image = MultipleImages.objects.filter(image=request.data['image']).filter(product=kwargs['pk'])
+                if del_image:
+                    self.perform_destroy(del_image)
+                else:
+                    return Response({
+                        "success": False,
+                        "message": "image not found"
+                    })
+            else:
+                return Response({
+                    "success": False,
+                    "message": "User has no products"
+                })
+        else:
+            return Response({
+                "success": False,
+                "message": "User does not exists"
+            })
+        return Response({
+            "success": False,
+            "message": "image deleted",
+        })
+
+    def update_images(self, request, *args, **kwargs):
+        user_id1 = request.user.id
+        check_user = UserProfile.objects.filter(user_id=user_id1)
+        if check_user:
+            check_user_in_product = AddProducts.objects.filter(user_id=user_id1)
+            if check_user_in_product:
+                already_images = MultipleImages.objects.filter(product=kwargs['pk'])
+                size_of_already_images = len(already_images)
+                images = dict((request.data).lists())['image']
+                size_of_adding_images = len(images)
+                size3 = 4 - size_of_already_images
+                if size_of_adding_images <= size3:
+                    for img_name in images:
+                        modified_data = {"product": kwargs['pk'], "image": img_name}
+                        serializer = MultiImageSerializer(data=modified_data)
+                        if serializer.is_valid():
+                            serializer.save()
+                        else:
+                            return Response({"success": False, "error": serializer._errors})
+                else:
+                    return Response({
+                        "success": False,
+                        "message": "user can upload maximum 4 files",
+                    })
+            else:
+                return Response({
+                    "success": False,
+                    "message": "User has no product"
+                })
+        else:
+            return Response({
+                "success": False,
+                "message": "User does not exists"
+            })
+        return Response({
+            "success": True,
+            "message": "images added"
+        })
+
+    def destroy(self, request, *args, **kwargs):
+        user_id1 = request.user.id
+        check_user = UserProfile.objects.filter(user_id=user_id1)
+        if check_user:
+            check_user_in_product = AddProducts.objects.filter(user_id=user_id1)
+            if check_user_in_product:
+                instance = self.get_object()
+                self.perform_destroy(instance)
+                return Response({
+                    "success": True,
+                    "message": "Product deleted."
+                })
+            return Response({
+                "success": False,
+                "message": "User has no product"
+            })
+        return Response({
+            "success": False,
+            "message": "User does not exists"
+        })
 
 
 class GetSpecificProd(viewsets.ModelViewSet):
