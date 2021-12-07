@@ -103,6 +103,9 @@ urlpatterns = [
     path('delete_service/<str:pk>/', views.AddServciesView.as_view({
         "delete": "destroy"
     }), name="update-services"),
+    path('contact_us/', views.ContactCardView.as_view({
+        "post": "Send_message"
+    }), name="Contact-us"),
 ]
 urlpatterns += router.urls
 

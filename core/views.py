@@ -1,7 +1,7 @@
 # Create your views here.
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.pagination import PageNumberPagination
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.mail import send_mail
 from rest_framework import viewsets, status, generics
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -577,7 +577,7 @@ class AddProductView(viewsets.ModelViewSet, LimitOffsetPagination):
         if check_user:
             check_user_in_product = AddProducts.objects.filter(user_id=user_id1)
             if check_user_in_product:
-                del_image = MultipleImages.objects.filter(image=request.data['image']).filter(product=kwargs['pk'])
+                del_image = MultipleImages.objects.filter(id=request.data['id']).filter(product=kwargs['pk'])
                 if del_image:
                     self.perform_destroy(del_image)
                 else:
@@ -839,4 +839,23 @@ class AddServciesView(viewsets.ModelViewSet):
             return Response({
                 "success": False,
                 "message": "user has no products",
+            })
+
+
+class ContactCardView(viewsets.ModelViewSet):
+
+    def Send_message(self, request):
+        subject = request.data['name']
+        message = request.data['message']
+        message = message + "/n Sender Email: " + str(request.user.email)
+        recipient_list = ['info@rfxme.com']
+        if send_mail(subject, message, DEFAULT_FROM_EMAIL, recipient_list):
+            return Response({
+                "success": True,
+                "message": "Mail send."
+            })
+        else:
+            return Response({
+                "success": False,
+                "message": "Mail not send."
             })
