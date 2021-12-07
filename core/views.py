@@ -148,7 +148,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
         if last_name:
             user.last_name = last_name
         user.save()
-
         serializer = self.get_serializer(instance, data=data, partial=partial)
         if serializer.is_valid():
             self.perform_update(serializer)
@@ -171,6 +170,16 @@ class UpdateProfileViewSet(viewsets.ModelViewSet):
             })
         partial = True
         instance = self.get_object()
+        check_user_category = Category.objects.filter(id=request.data.get('category'))
+
+        if request.data.get('category'):
+            if check_user_category:
+                request.data["category_name"] = check_user_category.get().name
+            else:
+                return Response({
+                    "success": False,
+                    "message": "category id is not correct"
+                })
         first_name = request.data.get("first_name", None)
         last_name = request.data.get("last_name", None)
         user = request.user
