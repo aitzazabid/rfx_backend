@@ -111,7 +111,7 @@ class SaveSupplierSerializer(serializers.ModelSerializer):
 class MultiImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = MultipleImages
-        fields = ("image", "product",)
+        fields = ("image", 'id')
 
 
 class ProductSerializer(serializers.ModelSerializer):
