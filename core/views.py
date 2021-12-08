@@ -854,11 +854,12 @@ class AddServciesView(viewsets.ModelViewSet):
 class ContactCardView(viewsets.ModelViewSet):
 
     def Send_message(self, request):
-        subject = request.data['name']
+        name = request.data['name']
         message = request.data['message']
-        message = message + "/n Sender Email: " + str(request.user.email)
+        user_email = request.data['email']
+        message1 = "Name: "+str(name)+" /n Message: "+message + " /n Sender Email: " + str(user_email)
         recipient_list = ['info@rfxme.com']
-        if send_mail(subject, message, DEFAULT_FROM_EMAIL, recipient_list):
+        if send_mail(user_email, message1, DEFAULT_FROM_EMAIL, recipient_list):
             return Response({
                 "success": True,
                 "message": "Mail send."
